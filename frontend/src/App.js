@@ -1,15 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
+import Header from './Components/Header';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Webshop Homepage
-        </p>
-      </header>
+     <Header />
     </div>
   );
 }
