@@ -10,6 +10,10 @@ import json
 from django.core.mail import send_mail
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')
 
 # Helper function to get cart from session
 def get_cart(session):
