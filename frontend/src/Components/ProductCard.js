@@ -1,117 +1,187 @@
 import React from "react";
-import { ShoppingCartIcon } from "@heroicons/react/24/solid";
+import ProductCard from "../Components/ProductCard";
+import Sidebar from "../Components/Sidebar";
 
-const ProductCard = ({ product }) => {
-	const renderStars = () => {
-		const totalStars = 5;
+const ProductCatalog = () => {
+	const products = [
+		{
+			id: 1,
+			name: "Cool T-Shirt",
+			mrp: 29,
+			price: 25.99,
+			description: "A trendy t-shirt for casual outings.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.5,
+		},
+		{
+			id: 2,
+			name: "Stylish Jacket",
+			mrp: 69,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 3,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 4,
+			name: "Cool T-Shirt",
+			mrp: 35,
+			price: 25.99,
+			description: "A trendy t-shirt for casual outings.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.5,
+		},
+		{
+			id: 5,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 6,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 7,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 8,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 9,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 10,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 11,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 12,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 13,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 14,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+		{
+			id: 15,
+			name: "Stylish Jacket",
+			mrp: 79,
+			price: 59.99,
+			description: "Keep warm with this stylish jacket.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 4.2,
+		},
+		{
+			id: 16,
+			name: "Elegant Watch",
+			mrp: 249,
+			price: 199.99,
+			description: "A sleek and elegant watch for all occasions.",
+			image:
+				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			rating: 3,
+		},
+	];
 
-		return (
-			<div className="flex space-x-1">
-				{Array.from({ length: totalStars }, (_, i) => {
-					const fillPercentage =
-						Math.min(Math.max(product.rating - i, 0), 1) * 100;
-
-					return (
-						<div key={i} className="relative">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								className="w-5 h-5 text-gray-300"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.462 4.49a1 1 0 00.95.69h4.735c.969 0 1.371 1.24.588 1.81l-3.833 2.774a1 1 0 00-.364 1.118l1.462 4.49c.3.921-.755 1.688-1.539 1.118l-3.833-2.774a1 1 0 00-1.176 0l-3.833 2.774c-.784.57-1.838-.197-1.539-1.118l1.462-4.49a1 1 0 00-.364-1.118L2.07 9.917c-.783-.57-.38-1.81.588-1.81h4.735a1 1 0 00.95-.69l1.462-4.49z" />
-							</svg>
-
-							<div
-								className="absolute top-0 left-0 overflow-hidden"
-								style={{ width: `${fillPercentage}%` }}
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									className="w-5 h-5 text-yellow-500"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-								>
-									<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.462 4.49a1 1 0 00.95.69h4.735c.969 0 1.371 1.24.588 1.81l-3.833 2.774a1 1 0 00-.364 1.118l1.462 4.49c.3.921-.755 1.688-1.539 1.118l-3.833-2.774a1 1 0 00-1.176 0l-3.833 2.774c-.784.57-1.838-.197-1.539-1.118l1.462-4.49a1 1 0 00-.364-1.118L2.07 9.917c-.783-.57-.38-1.81.588-1.81h4.735a1 1 0 00.95-.69l1.462-4.49z" />
-								</svg>
-							</div>
-						</div>
-					);
-				})}
-			</div>
-		);
+	const handleApplyFilters = (appliedFilters, priceRange) => {
+		if (appliedFilters.selectedSortBy !== "open")
+			console.log("Filters applied:", appliedFilters, priceRange);
 	};
 
 	return (
-		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 flex flex-col">
-			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
-				<img
-					src={product.image}
-					alt={product.name}
-					className="w-full h-full object-cover transition-transform transform hover:scale-110"
-				/>
-			</div>
+		<div className="max-w-screen-xl mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+			<Sidebar applyFilters={handleApplyFilters} />
 
-			{/* Mobile View */}
-			<div className="block sm:hidden flex flex-col justify-between p-3 space-y-2">
-				<div className="flex justify-between items-center">
-					<h3 className="text-sm font-medium text-gray-800 truncate">
-						{product.name}
-					</h3>
-					<div className="flex items-center space-x-2">
-						<p className="text-sm font-bold text-gray-800">€{product.price}</p>
-						<p className="text-xs text-gray-500 line-through">€{product.mrp}</p>
-					</div>
-				</div>
-
-				<p className="text-sm text-gray-600 line-clamp-2 text-left">
-					{product.description}
-				</p>
-
-				<div className="flex items-center space-x-1 text-xs text-gray-500">
-					{renderStars()}
-					<span>({product.rating.toFixed(1)})</span>
-				</div>
-
-				<button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1">
-					<ShoppingCartIcon className="h-4 w-4" />
-					<span>Add to Cart</span>
-				</button>
-			</div>
-
-			{/* Desktop View */}
-			<div className="hidden sm:flex flex-col justify-between flex-grow p-2 space-y-2">
-				<h3 className="text-lg font-semibold text-gray-800 text-left">
-					{product.name}
-				</h3>
-
-				<p className="text-sm text-gray-600 line-clamp-2 text-left">
-					{product.description}
-				</p>
-
-				<div className="flex items-center space-x-1">
-					{renderStars()}
-					<span className="text-xs text-gray-500">
-						({product.rating.toFixed(1)})
-					</span>
-				</div>
-
-				<p className="text-sm text-green-600 font-medium text-left">
-					Free Delivery on orders over €50!
-				</p>
-
-				<div className="flex justify-between items-center py-2 px-1 border-t border-gray-200">
-					<div className="flex items-center space-x-2">
-						<p className="text-xl font-bold text-gray-800">€{product.price}</p>
-						<p className="text-sm text-gray-500 line-through">€{product.mrp}</p>
-					</div>
-					<button className="w-24 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-						Add to Cart
-					</button>
-				</div>
-			</div>
+			<section className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+				{products.map((product) => (
+					<ProductCard key={product.id} product={product} />
+				))}
+			</section>
 		</div>
 	);
 };
 
-export default ProductCard;
+export default ProductCatalog;
