@@ -3,6 +3,12 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from rest_framework.response import Response
+from rest_framework import status
+
+  # Import the Response class
+
+from .serializers import ProductSerializer
 from .models import (
     Customer, Product, Supplier, Inventory, Payment, Order, OrderDetails
 )
@@ -31,7 +37,7 @@ class ProductManagementView(View):
         try:
             data = json.loads(request.body)
             supplier = get_object_or_404(Supplier, pk=data['supplier_id'])
-            inventory = Inventory.objects.create(stock=data['stock'])
+            inventory = Inventory.objects.create(stock=data['inventory_id'])
             product = Product.objects.create(
                 name=data['name'],
                 price=data['price'],
@@ -45,25 +51,28 @@ class ProductManagementView(View):
             return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
 
-    def get(self, request):  # Read Products
+    def get(self, request, product_id=None):
+        """
+        Retrieve a single product (if product_id is provided) 
+        or list all products (if no product_id is provided).
+        """
         try:
-            products = Product.objects.all()
-            product_list = [
-                {
-                    "id": product.product_id,
-                    "name": product.name,
-                    "price": float(product.price),
-                    "description": product.description,
-                    "category": product.category,
-                    "supplier": product.supplier.name,
-                    "stock": product.inventory.stock,
-                }
-                for product in products
-            ]
-            return JsonResponse({"products": product_list})
+            if product_id:
+                # Retrieve a single product
+                product = Product.objects.get(pk=product_id)
+                serializer = ProductSerializer(product)
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            else:
+                # Retrieve all products
+                products = Product.objects.all()
+                serializer = ProductSerializer(products, many=True)
+                return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        except Product.DoesNotExist:
+            return JsonResponse({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @method_decorator(csrf_exempt)
     def put(self, request):  # Update Product
