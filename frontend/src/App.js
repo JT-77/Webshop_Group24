@@ -1,17 +1,18 @@
-import logo from "./logo.svg";
-import "./App.css";
-import Header from "./Components/Header";
-import Footer from "./Components/Footer";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductCatalog from "./Pages/ProductCatalog";
+import NotFoundPage from "./Pages/404";
 
-function App() {
+const App = () => {
 	return (
-		<div className="App">
-			<Header />
-			<ProductCatalog />
-			<Footer />
-		</div>
+		<Router>
+			<Routes>
+				<Route path="/" element={<ProductCatalog />} />
+
+				<Route path="*" element={<NotFoundPage />} />
+			</Routes>
+		</Router>
 	);
-}
+};
 
 export default App;
