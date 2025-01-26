@@ -10,5 +10,6 @@ urlpatterns = [
     path('orders/new/', OrderManagementView.as_view()),  # For a specific order
     path('inventory/', InventoryManagementView.as_view(), name='inventory-list'),
     path('supplier/', InventoryManagementView.as_view(), name='inventory-list'),
+    path('order/update-status/', UpdateOrderStatusView.as_view(), name='update_order_status'),
 
 ]

@@ -5,6 +5,9 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
   # Import the Response class
 
@@ -217,9 +220,6 @@ class OrderManagementView(View):
                     )
                 except Product.DoesNotExist:
                     return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
-                
-            # Send order confirmation email
-            send_order_email(order, 'confirmation')
 
             return JsonResponse({
                 "message": "Order created successfully",
@@ -317,49 +317,83 @@ class InventoryManagementView(View):
 class EmailNotificationView(View):
     @method_decorator(csrf_exempt)
     def post(self, request):
+        data = json.loads(request.body)
+        subject = data['subject']
+        message = data['message']
+        recipient_list = data['recipients']
+        send_mail(
+            subject,
+            message,
+            'no-reply@ecommerce.com',  # Replace with actual sender email
+            recipient_list
+        )
+        return JsonResponse({"message": "Emails sent successfully"})
+
+
+
+
+
+class UpdateOrderStatusView(View):
+    @method_decorator(csrf_exempt)
+    def post(self, request):
         try:
+            # Parse the JSON data from the request
             data = json.loads(request.body)
-            subject = data['subject']
-            message = data['message']
-            recipients = data['recipients']
-            send_mail(
-                subject,
-                message,
-                'no-reply@ecommerce.com',  # Replace with your actual sender email
-                recipients
+            order_id = data.get('order_id')
+            new_status = data.get('order_status')
+
+            if not order_id or not new_status:
+                return JsonResponse({"error": "Order ID and order_status are required"}, status=400)
+
+            # Retrieve the order object
+            order = get_object_or_404(Order, pk=order_id)
+
+            # Update the order status
+            previous_status = order.order_status
+            order.order_status = new_status
+            order.save()
+
+            # Call the helper function to send an email
+            send_status_update_email(
+                customer_name=order.customer.name,
+                customer_email=order.customer.email,
+                order_id=order_id,
+                previous_status=previous_status,
+                new_status=new_status
             )
-            return JsonResponse({"message": "Emails sent successfully"})
+
+            return JsonResponse({"message": "Order status updated and email sent"})
+        except Order.DoesNotExist:
+            return JsonResponse({"error": "Order not found"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
-    
 
 
 
+def send_status_update_email(customer_name, customer_email, order_id, previous_status, new_status):
+    if new_status == "Confirmed":
+        subject = "Your Order is Confirmed!"
+        html_content = render_to_string("emails/order_confirmed.html", {
+            "customer_name": customer_name,
+            "order_id": order_id
+        })
+    elif new_status == "Shipped":
+        subject = "Your Order is Shipped!"
+        html_content = render_to_string("emails/order_shipped.html", {
+            "customer_name": customer_name,
+            "order_id": order_id
+        })
+    else:
+        return  # Skip sending emails for other statuses.
 
+    # Create plain text version by stripping HTML tags
+    plain_message = strip_tags(html_content)
+    sender_email = 'webshop.alerts3011@gmail.com'  # Replace with your actual sender email
+    recipient_list = [customer_email]
 
-def send_order_email(order, email_type):
-    subject = ''
-    message = ''
-    recipient_list = [order.customer.email]
-    
-    if email_type == 'confirmation':
-        subject = f"Order Confirmation - Order #{order.order_id}"
-        message = (
-            f"Dear {order.customer.name},\n\n"
-            f"Thank you for your purchase!\n"
-            f"Order ID: {order.order_id}\n"
-            f"Total Amount: {order.order_amount}\n\n"
-            "We will notify you when your order is shipped.\n"
-            "Thank you for shopping with us!"
-        )
-    elif email_type == 'shipping':
-        subject = f"Shipping Notification - Order #{order.order_id}"
-        message = (
-            f"Dear {order.customer.name},\n\n"
-            f"Your order #{order.order_id} has been shipped!\n\n"
-            "Thank you for shopping with us!"
-        )
-    
-    send_mail(subject, message, 'chitrakhatri06@gmail.com', recipient_list)
-
+    # Send email with both plain text and HTML versions
+    email = EmailMessage(subject, plain_message, sender_email, recipient_list)
+    email.content_subtype = "html"  # Send as HTML
+    email.body = html_content
+    email.send()
