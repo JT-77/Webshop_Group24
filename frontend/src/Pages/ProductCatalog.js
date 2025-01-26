@@ -1,6 +1,8 @@
 import React from "react";
 import ProductCard from "../Components/ProductCard";
 import Sidebar from "../Components/Sidebar";
+import Header from "../Components/Header";
+import Footer from "../Components/Footer";
 
 const ProductCatalog = () => {
 	const products = [
@@ -172,15 +174,20 @@ const ProductCatalog = () => {
 	};
 
 	return (
-		<div className="max-w-screen-xl mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-6">
-			<Sidebar applyFilters={handleApplyFilters} />
+		<>
+			<Header />
 
-			<section className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-				{products.map((product) => (
-					<ProductCard key={product.id} product={product} />
-				))}
-			</section>
-		</div>
+			<div className="max-w-screen-xl mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+				<Sidebar applyFilters={handleApplyFilters} />
+
+				<section className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+					{products.map((product) => (
+						<ProductCard key={product.id} product={product} />
+					))}
+				</section>
+			</div>
+			<Footer />
+		</>
 	);
 };
 
