@@ -109,47 +109,129 @@ class ProductManagementView(View):
             return JsonResponse({"error": "Product ID is required"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
+
+class OrderListView(View):
+    def get(self, request, order_id=None):  # Track Orders
+        try:
+            if order_id:  # Fetch a specific order by ID
+                try:
+                    order = Order.objects.get(order_id=order_id)
+                    order_data = {
+                        "order_id": order.order_id,
+                        "customer": order.customer.name,
+                        "status": order.order_status,
+                        "amount": float(order.order_amount),
+                        "date": order.order_date,
+                        "products": [
+                            {
+                                "name": detail.product.name,
+                                "quantity": detail.product_quantity,
+                            }
+                            for detail in OrderDetails.objects.filter(order=order)
+                        ],
+                    }
+                    return JsonResponse(order_data, safe=False)
+                except Order.DoesNotExist:
+                    return JsonResponse({"error": "Order not found"}, status=404)
+            else:  # Fetch all orders
+                orders = Order.objects.all()
+                order_list = [
+                    {
+                        "order_id": order.order_id,
+                        "customer": order.customer.name,
+                        "status": order.order_status,
+                        "amount": float(order.order_amount),
+                        "date": order.order_date,
+                        "products": [
+                            {
+                                "name": detail.product.name,
+                                "quantity": detail.product_quantity,
+                            }
+                            for detail in OrderDetails.objects.filter(order=order)
+                        ],
+                    }
+                    for order in orders
+                ]
+                return JsonResponse({"orders": order_list}, safe=False)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)        
 
 # Order Management
 class OrderManagementView(View):
-    def get(self, request):  # Track Orders
-        try:
-            orders = Order.objects.all()
-            order_list = [
-                {
-                    "order_id": order.order_id,
-                    "customer": order.customer.name,
-                    "status": order.order_status,
-                    "amount": float(order.order_amount),
-                    "date": order.order_date,
-                    "products": [
-                        {
-                            "name": detail.product.name,
-                            "quantity": detail.product_quantity,
-                        }
-                        for detail in OrderDetails.objects.filter(order=order)
-                    ],
-                }
-                for order in orders
-            ]
-            return JsonResponse({"orders": order_list})
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
+    
+    #@method_decorator(csrf_exempt)  # Consider removing csrf_exempt in production if using DRF
     @method_decorator(csrf_exempt)
-    def post(self, request):  # Process Orders
+    def post(self, request):
         try:
+            # Parse the request body to get order data
             data = json.loads(request.body)
-            order = get_object_or_404(Order, pk=data['order_id'])
-            order.order_status = data['status']
-            order.save()
-            return JsonResponse({"message": "Order status updated", "status": order.order_status})
-        except ObjectDoesNotExist as e:
-            return JsonResponse({"error": str(e)}, status=404)
-        except KeyError:
-            return JsonResponse({"error": "Order ID and status are required"}, status=400)
+
+            # Validate required fields
+            if 'customer_id' not in data or 'products' not in data or 'amount' not in data or 'payment_method' not in data:
+                return JsonResponse({"error": "Customer ID, products, amount, and payment method are required"}, status=400)
+
+            # Validate customer
+            try:
+                customer = Customer.objects.get(pk=data['customer_id'])
+            except Customer.DoesNotExist:
+                return JsonResponse({"error": "Customer not found"}, status=404)
+
+                # Determine the shipping address
+            shipping_address = data.get('shipping_address', customer.shipping_address)
+
+            # Create a payment entry
+            payment = Payment.objects.create(
+                payment_method=data['payment_method'],
+                transaction_id=f"TXN_{Payment.objects.count() + 1}"
+            )
+
+            # Create the order
+            order = Order.objects.create(
+                customer=customer,
+                order_status="Confirmed",  # Default status, can be customized
+                order_amount=data['amount'],
+                order_date=data.get('order_date', None),  # Optional field
+                payment=payment,
+                shipping_address=shipping_address
+            )
+
+            # Handle order details (products in the order)
+            for item in data['products']:
+                try:
+                    product = Product.objects.get(pk=item['product_id'])
+
+                    # Check if the product is in stock
+                    if product.inventory.stock < item['quantity']:
+                        return JsonResponse({"error": f"Insufficient stock for product {product.name}"}, status=400)
+
+                    # Deduct the stock
+                    product.inventory.stock -= item['quantity']
+                    product.inventory.save()
+
+                    # Create the order details
+                    OrderDetails.objects.create(
+                        order=order,
+                        product=product,
+                        product_quantity=item['quantity'],
+                    )
+                except Product.DoesNotExist:
+                    return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
+
+            return JsonResponse({
+                "message": "Order created successfully",
+                "order_id": order.order_id,
+                "status": order.order_status,
+                "amount": order.order_amount,
+                "transaction_id": payment.transaction_id
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON payload"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
+
 
 # Cart Management
 class CartView(View):
@@ -176,42 +258,6 @@ class CartView(View):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
-# Order Placement
-class OrderPlacementView(View):
-    @method_decorator(csrf_exempt)
-    def post(self, request):
-        try:
-            session = request.session
-            cart = get_cart(session)
-            if not cart:
-                return JsonResponse({"error": "Cart is empty"}, status=400)
-            customer_id = request.POST.get('customer_id')
-            if not customer_id:
-                return JsonResponse({"error": "Customer ID is required"}, status=400)
-
-            customer = get_object_or_404(Customer, pk=customer_id)
-            total_amount = 0
-            with transaction.atomic():
-                order = Order.objects.create(customer=customer, order_status="Pending", shipping_address=customer.shipping_address)
-                for product_id, quantity in cart.items():
-                    product = get_object_or_404(Product, pk=product_id)
-                    if product.inventory.stock < quantity:
-                        raise ValueError(f"Insufficient stock for product: {product.name}")
-                    total_amount += product.price * quantity
-                    OrderDetails.objects.create(order=order, product=product, product_quantity=quantity)
-                    # Deduct from inventory
-                    product.inventory.stock -= quantity
-                    product.inventory.save()
-                order.order_amount = total_amount
-                order.save()
-            save_cart(session, {})  # Clear the cart
-            return JsonResponse({"message": "Order placed", "order_id": order.order_id})
-        except ObjectDoesNotExist as e:
-            return JsonResponse({"error": str(e)}, status=404)
-        except ValueError as e:
-            return JsonResponse({"error": str(e)}, status=400)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
 
 # Payment Processing (Mock-up)
 class PaymentProcessingView(View):
@@ -230,6 +276,7 @@ class PaymentProcessingView(View):
             return JsonResponse({"error": "Payment method is required"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+    
 
 # Inventory Management
 class InventoryManagementView(View):

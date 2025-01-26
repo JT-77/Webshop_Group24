@@ -23,7 +23,6 @@ class Supplier(models.Model):
 class Inventory(models.Model):
     inventory_id = models.AutoField(primary_key=True)
     stock = models.PositiveIntegerField()
-    product_id=models.PositiveIntegerField()
     def __str__(self):
         return f"Inventory {self.inventory_id}"
 
