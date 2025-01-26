@@ -217,6 +217,9 @@ class OrderManagementView(View):
                     )
                 except Product.DoesNotExist:
                     return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
+                
+            # Send order confirmation email
+            send_order_email(order, 'confirmation')
 
             return JsonResponse({
                 "message": "Order created successfully",
@@ -314,14 +317,49 @@ class InventoryManagementView(View):
 class EmailNotificationView(View):
     @method_decorator(csrf_exempt)
     def post(self, request):
-        data = json.loads(request.body)
-        subject = data['subject']
-        message = data['message']
-        recipient_list = data['recipients']
-        send_mail(
-            subject,
-            message,
-            'no-reply@ecommerce.com',  # Replace with actual sender email
-            recipient_list
+        try:
+            data = json.loads(request.body)
+            subject = data['subject']
+            message = data['message']
+            recipients = data['recipients']
+            send_mail(
+                subject,
+                message,
+                'no-reply@ecommerce.com',  # Replace with your actual sender email
+                recipients
+            )
+            return JsonResponse({"message": "Emails sent successfully"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    
+
+
+
+
+
+def send_order_email(order, email_type):
+    subject = ''
+    message = ''
+    recipient_list = [order.customer.email]
+    
+    if email_type == 'confirmation':
+        subject = f"Order Confirmation - Order #{order.order_id}"
+        message = (
+            f"Dear {order.customer.name},\n\n"
+            f"Thank you for your purchase!\n"
+            f"Order ID: {order.order_id}\n"
+            f"Total Amount: {order.order_amount}\n\n"
+            "We will notify you when your order is shipped.\n"
+            "Thank you for shopping with us!"
         )
-        return JsonResponse({"message": "Emails sent successfully"})
+    elif email_type == 'shipping':
+        subject = f"Shipping Notification - Order #{order.order_id}"
+        message = (
+            f"Dear {order.customer.name},\n\n"
+            f"Your order #{order.order_id} has been shipped!\n\n"
+            "Thank you for shopping with us!"
+        )
+    
+    send_mail(subject, message, 'chitrakhatri06@gmail.com', recipient_list)
+

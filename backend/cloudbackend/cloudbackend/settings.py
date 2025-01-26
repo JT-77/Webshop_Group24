@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -82,8 +83,11 @@ DATABASES = {
         'PASSWORD': 'sikar192',
         'HOST':'database-1.c7o0kige23m9.us-east-1.rds.amazonaws.com',
         'PORT':'3306',
+        
     }
 }
+
+
 
 
 # Password validation
@@ -135,5 +139,11 @@ REST_FRAMEWORK = {
 
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
+EMAIL_PORT = 587  # Common port for TLS
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chitrakhatri06@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'rnjy qmpu xtyj jfzb'  # Replace with your email password
 
 
