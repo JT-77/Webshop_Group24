@@ -14,5 +14,6 @@ urlpatterns = [
     path('inventory/', InventoryManagementView.as_view(), name='inventory-list'),
     path('supplier/', InventoryManagementView.as_view(), name='inventory-list'),
     path('order/update-status/', UpdateOrderStatusView.as_view(), name='update_order_status'),
+    path('low-stock-check/', LowStockCheckView.as_view(), name='low-stock-check'),
 
 ]
