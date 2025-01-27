@@ -16,8 +16,7 @@ const ShoppingCart = () => {
 			mrp: 29,
 			price: 25.99,
 			description: "A trendy t-shirt for casual outings.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			quantity: 4,
 		},
 		{
@@ -26,8 +25,7 @@ const ShoppingCart = () => {
 			mrp: 69,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			quantity: 2,
 		},
 	]);

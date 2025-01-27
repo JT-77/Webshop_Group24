@@ -12,8 +12,7 @@ const ProductCatalog = () => {
 			mrp: 29,
 			price: 25.99,
 			description: "A trendy t-shirt for casual outings.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.5,
 		},
 		{
@@ -22,8 +21,7 @@ const ProductCatalog = () => {
 			mrp: 69,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -32,8 +30,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -42,8 +39,7 @@ const ProductCatalog = () => {
 			mrp: 35,
 			price: 25.99,
 			description: "A trendy t-shirt for casual outings.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.5,
 		},
 		{
@@ -52,8 +48,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -62,8 +57,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -72,8 +66,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -82,8 +75,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -92,8 +84,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -102,8 +93,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -112,8 +102,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -122,8 +111,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -132,8 +120,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -142,8 +129,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 		{
@@ -152,8 +138,7 @@ const ProductCatalog = () => {
 			mrp: 79,
 			price: 59.99,
 			description: "Keep warm with this stylish jacket.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 4.2,
 		},
 		{
@@ -162,8 +147,7 @@ const ProductCatalog = () => {
 			mrp: 249,
 			price: 199.99,
 			description: "A sleek and elegant watch for all occasions.",
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
+			image: "/tshirt.jpeg",
 			rating: 3,
 		},
 	];
