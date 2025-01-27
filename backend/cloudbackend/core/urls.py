@@ -3,8 +3,11 @@ from .views import *
 
 urlpatterns = [
 
-    path('products/', ProductManagementView.as_view(), name='product-list'),
-    path('products/<int:product_id>/', ProductManagementView.as_view(), name='product-detail'),  # GET, PUT, DELETE
+    path('products/', ProductListView.as_view(), name='product-list'),# GET All
+    path('products/<int:product_id>/', ProductListView.as_view(), name='product-detail'),  # GET  for a specific product
+    path('products/update/<int:product_id>/', ProductUpdateView.as_view(), name='product-detail'), #PUT
+    path('products/delete/<int:product_id>/', ProductDeleteView.as_view(), name='product-detail'), #DELETE
+    path('products/new/', ProductInsertView.as_view(), name='product-detail'),  # POST
     path('orders/', OrderListView.as_view()),  # For all orders
     path('orders/<int:order_id>/', OrderListView.as_view()),  # For a specific order
     path('orders/new/', OrderManagementView.as_view()),  # For a specific order

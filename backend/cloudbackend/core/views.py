@@ -5,9 +5,9 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from rest_framework.response import Response
 from rest_framework import status
-from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.core.mail import EmailMessage
 
   # Import the Response class
 
@@ -34,28 +34,8 @@ def save_cart(session, cart):
     session.modified = True
 
 # Product Management
-class ProductManagementView(View):
-    @method_decorator(csrf_exempt)
-    def post(self, request):  # Create Product
-        try:
-            data = json.loads(request.body)
-            supplier = get_object_or_404(Supplier, pk=data['supplier_id'])
-            inventory = Inventory.objects.create(stock=data['inventory_id'])
-            product = Product.objects.create(
-                name=data['name'],
-                price=data['price'],
-                description=data['description'],
-                category=data['category'],
-                supplier=supplier,
-                inventory=inventory,
-            )
-            return JsonResponse({"message": "Product created", "product_id": product.product_id})
-        except KeyError as e:
-            return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-        
-
+class ProductListView(View):
+ 
     def get(self, request, product_id=None):
         """
         Retrieve a single product (if product_id is provided) 
@@ -77,26 +57,6 @@ class ProductManagementView(View):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @method_decorator(csrf_exempt)
-    def put(self, request):  # Update Product
-        try:
-            data = json.loads(request.body)
-            product = get_object_or_404(Product, pk=data['product_id'])
-            product.name = data['name']
-            product.price = data['price']
-            product.description = data['description']
-            product.category = data['category']
-            product.supplier = get_object_or_404(Supplier, pk=data['supplier_id'])
-            product.inventory.stock = data['stock']
-            product.inventory.save()
-            product.save()
-            return JsonResponse({"message": "Product updated"})
-        except ObjectDoesNotExist as e:
-            return JsonResponse({"error": str(e)}, status=404)
-        except KeyError as e:
-            return JsonResponse({"error": f"Missing field: {str(e)}"}, status=400)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
 
     @method_decorator(csrf_exempt)
     def delete(self, request):  # Delete Product
@@ -112,7 +72,130 @@ class ProductManagementView(View):
             return JsonResponse({"error": "Product ID is required"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+class ProductUpdateView(View):
+    def put(self, request, product_id):
+        try:
+            # Parse the request body
+            data = json.loads(request.body)
+
+            # Validate the product
+            try:
+                product = Product.objects.get(pk=product_id)
+            except Product.DoesNotExist:
+                return JsonResponse({"error": f"Product with ID {product_id} not found"}, status=404)
+
+            # Update fields if they are present in the request
+            if 'name' in data:
+                product.name = data['name']
+            if 'category' in data:
+                product.category = data['category']
+            if 'price' in data:
+                product.price = data['price']
+            if 'description' in data:
+                product.description = data['description']
+            if 'image_path' in data:
+                product.image_path = data['image_path']
+                # Automatically update image count
+                product.image_count = len(data['image_path'])
+
+            # Handle inventory updates if included
+            if 'stock' in data:
+                if not hasattr(product, 'inventory'):
+                    # Create new inventory if it doesn't exist
+                    product.inventory = Inventory.objects.create(stock=data['stock'])
+                else:
+                    product.inventory.stock = data['stock']
+                product.inventory.save()
+
+            # Save the product
+            product.save()
+
+            return JsonResponse({"message": "Product updated successfully"}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON payload"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+class ProductInsertView(View):
+    def post(self, request):
+        """
+        Handles adding a new product to the database.
+        Expects a JSON payload with product details.
+        """
+        try:
+            # Parse the request body
+            data = json.loads(request.body)
+
+            # Validate required fields
+            required_fields = ['name', 'category', 'supplier_id', 'price', 'description']
+            missing_fields = [field for field in required_fields if field not in data]
+            if missing_fields:
+                return JsonResponse({"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400)
+
+            # Check if the supplier exists
+            try:
+                supplier = Supplier.objects.get(pk=data['supplier_id'])
+            except Supplier.DoesNotExist:
+                return JsonResponse({"error": f"Supplier with ID {data['supplier_id']} not found"}, status=404)
+
+            # Handle inventory: create one if not provided or does not exist
+            if 'inventory_id' in data:
+                try:
+                    inventory = Inventory.objects.get(pk=data['inventory_id'])
+                except Inventory.DoesNotExist:
+                    return JsonResponse({"error": f"Inventory with ID {data['inventory_id']} not found"}, status=404)
+            else:
+                # Create a new inventory record with the provided stock or default to 0
+                stock = data.get('stock', 0)
+                inventory = Inventory.objects.create(stock=stock)
+
+            # Create the product
+            product = Product.objects.create(
+                name=data['name'],
+                category=data['category'],
+                supplier=supplier,
+                inventory=inventory,
+                price=data['price'],
+                description=data['description'],
+                image_path=data.get('image_path', [])  # Optional field
+            )
+
+            return JsonResponse({
+                "message": "Product created successfully",
+                "product_id": product.product_id,
+                "product_name": product.name,
+                "image_count": product.image_count  
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON payload"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
         
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProductDeleteView(View):
+    def delete(self, request, product_id):
+        try:
+            # Retrieve the product instance
+            product = get_object_or_404(Product, pk=product_id)
+
+            # Delete associated inventory
+            if product.inventory:
+                product.inventory.delete()
+
+            # Delete the product
+            product.delete()
+
+            return JsonResponse({"message": "Product deleted successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
 
 class OrderListView(View):
     def get(self, request, order_id=None):  # Track Orders
@@ -328,9 +411,7 @@ class EmailNotificationView(View):
             recipient_list
         )
         return JsonResponse({"message": "Emails sent successfully"})
-
-
-
+		
 
 
 class UpdateOrderStatusView(View):
@@ -381,6 +462,13 @@ def send_status_update_email(customer_name, customer_email, order_id, previous_s
     elif new_status == "Shipped":
         subject = "Your Order is Shipped!"
         html_content = render_to_string("emails/order_shipped.html", {
+            "customer_name": customer_name,
+            "order_id": order_id
+        })
+
+    elif new_status == "Cancelled":
+        subject = "Your Order is Cancelled"
+        html_content = render_to_string("emails/order_cancelled.html", {
             "customer_name": customer_name,
             "order_id": order_id
         })

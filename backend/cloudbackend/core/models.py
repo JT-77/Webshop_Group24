@@ -36,6 +36,13 @@ class Product(models.Model):
     description = models.TextField()
     #image = models.ImageField(upload_to='products/')
     image_path=models.JSONField(default=list, null=True, blank=True) 
+    image_count = models.PositiveIntegerField(default=0)  # New column for image count
+
+    def save(self, *args, **kwargs):
+        # Dynamically calculate image_count based on image_path array length
+        self.image_count = len(self.image_path or [])
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return self.name
 
