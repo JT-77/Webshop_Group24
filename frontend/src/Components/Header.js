@@ -4,6 +4,7 @@ import {
 	UserIcon,
 	MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
+import { Link } from "react-router-dom";
 
 const Header = () => {
 	const [cartItems, setCartItems] = useState(3);
@@ -72,9 +73,12 @@ const Header = () => {
 					</div>
 
 					<div className="relative">
-						<button className="flex items-center text-gray-700 hover:text-blue-600">
+						<Link
+							to="/cart"
+							className="flex items-center text-gray-700 hover:text-blue-600"
+						>
 							<ShoppingCartIcon className="h-6 w-6" />
-						</button>
+						</Link>
 						{cartItems > 0 && (
 							<span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
 								{cartItems}
