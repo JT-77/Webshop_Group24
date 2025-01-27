@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
 	const renderStars = () => {
@@ -45,19 +46,23 @@ const ProductCard = ({ product }) => {
 	return (
 		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 flex flex-col">
 			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
-				<img
-					src={product.image}
-					alt={product.name}
-					className="w-full h-full object-cover transition-transform transform hover:scale-110"
-				/>
+				<Link to={`/product/${product.id}`}>
+					<img
+						src={product.image}
+						alt={product.name}
+						className="w-full h-full object-cover transition-transform transform hover:scale-110"
+					/>
+				</Link>
 			</div>
 
 			{/* Mobile View */}
 			<div className="block sm:hidden flex flex-col justify-between p-3 space-y-2">
 				<div className="flex justify-between items-center">
-					<h3 className="text-sm font-medium text-gray-800 truncate">
-						{product.name}
-					</h3>
+					<Link to={`/product/${product.id}`}>
+						<h3 className="text-sm font-medium text-gray-800 truncate">
+							{product.name}
+						</h3>
+					</Link>
 					<div className="flex items-center space-x-2">
 						<p className="text-sm font-bold text-gray-800">€{product.price}</p>
 						<p className="text-xs text-gray-500 line-through">€{product.mrp}</p>
@@ -81,9 +86,11 @@ const ProductCard = ({ product }) => {
 
 			{/* Desktop View */}
 			<div className="hidden sm:flex flex-col justify-between flex-grow p-2 space-y-2">
-				<h3 className="text-lg font-semibold text-gray-800 text-left">
-					{product.name}
-				</h3>
+				<Link to={`/product/${product.id}`}>
+					<h3 className="text-lg font-semibold text-gray-800 text-left">
+						{product.name}
+					</h3>
+				</Link>
 
 				<p className="text-sm text-gray-600 line-clamp-2 text-left">
 					{product.description}
