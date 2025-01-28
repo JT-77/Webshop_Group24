@@ -111,6 +111,10 @@ class ProductUpdateView(View):
                     product.inventory.stock = data['stock']
                 product.inventory.save()
 
+            if 'rating' in data:
+                product.ratings = data['rating']
+            if 'reviews' in data:
+                product.reviews = data['reviews']
             # Save the product
             product.save()
 
@@ -164,6 +168,7 @@ class ProductInsertView(View):
                 price=data['price'],
                 description=data['description'],
                 image_path=data.get('image_path', [])  # Optional field
+            
             )
 
             return JsonResponse({
