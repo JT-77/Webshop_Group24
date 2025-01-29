@@ -86,7 +86,7 @@ DATABASES = {
         'HOST':'database-1.c7o0kige23m9.us-east-1.rds.amazonaws.com',
         'PORT':'3306',
 
-
+    }}
 
 
 
@@ -148,7 +148,7 @@ EMAIL_HOST_PASSWORD = 'mksc rgwm znta wnkx'  # Replace with your email password
 
 
 CORS_ALLOWED_ORIGINS = [
-    "54.163.17.7",
+    "http://54.163.17.7",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
