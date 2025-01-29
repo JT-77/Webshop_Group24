@@ -85,13 +85,7 @@ DATABASES = {
         'PASSWORD': 'sikar192',
         'HOST':'database-1.c7o0kige23m9.us-east-1.rds.amazonaws.com',
         'PORT':'3306',
-<<<<<<< Updated upstream
-        
-=======
-       
->>>>>>> Stashed changes
-    }
-}
+
 
 
 
