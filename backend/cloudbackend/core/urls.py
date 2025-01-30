@@ -8,6 +8,7 @@ urlpatterns = [
     path('products/update/<int:product_id>/', ProductUpdateView.as_view(), name='product-detail'), #PUT
     path('products/delete/<int:product_id>/', ProductDeleteView.as_view(), name='product-detail'), #DELETE
     path('products/new/', ProductInsertView.as_view(), name='product-detail'),  # POST
+    path('products/filter/', productFilterAPI.as_view(), name='product-list'),
     path('orders/', OrderListView.as_view()),  # For all orders
     path('orders/<int:order_id>/', OrderListView.as_view()),  # For a specific order
     path('orders/new/', OrderManagementView.as_view()),  # For a specific order

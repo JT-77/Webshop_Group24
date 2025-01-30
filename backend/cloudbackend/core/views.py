@@ -11,6 +11,7 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from django.utils.decorators import method_decorator
+from django.db.models import Q, F
 
   # Import the Response class
 
@@ -75,6 +76,59 @@ class ProductListView(View):
             return JsonResponse({"error": "Product ID is required"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
+
+class productFilterAPI(View):
+    def get(self, request, *args, **kwargs):
+        """API to fetch and filter products based on various parameters."""
+        
+        # Get query parameters
+        search_query = request.GET.get('search', '')
+        selected_sort_by = request.GET.get('selectedSortBy', '')
+        include_out_of_stock = request.GET.get('includeOutOfStock', 'false').lower() == 'true'
+        category = request.GET.getlist('category', [])  # Can have multiple values
+        customer_ratings = request.GET.get('customerRatings', None)
+        min_price = request.GET.get('min_price', None)
+        max_price = request.GET.get('max_price', None)
+
+        # Get all products
+        products = Product.objects.all()
+
+        # Apply search filter (product name or description)
+        if search_query:
+            products = products.filter(Q(subcategory__icontains=search_query) | Q(description__icontains=search_query))
+
+        # Apply category filter
+        if category:
+            products = products.filter(category__in=category)
+
+        # Apply price range filter
+        if min_price:
+            products = products.filter(price__gte=min_price)
+        if max_price:
+            products = products.filter(price__lte=max_price)
+
+        # Apply customer rating filter
+        if customer_ratings:
+            products = products.filter(rating__gte=float(customer_ratings))
+
+        # Exclude out-of-stock items if includeOutOfStock is False
+        if not include_out_of_stock:
+            products = products.filter(inventory__stock__gt=0)
+
+        # Sorting logic
+        if selected_sort_by == "Price: Low to High":
+            products = products.order_by(F("price").asc(nulls_last=True))
+        elif selected_sort_by == "Price: High to Low":
+            products = products.order_by(F("price").desc(nulls_last=True))
+
+        sorted_products = list(products)
+
+        print("Final Sorted Products:", sorted_products)
+
+        print("SQL Query:", str(products.query))
+        serializer = ProductSerializer(products, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
 
 class ProductUpdateView(View):
     def put(self, request, product_id):

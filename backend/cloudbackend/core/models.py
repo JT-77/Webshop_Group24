@@ -39,6 +39,7 @@ class Product(models.Model):
     image_count = models.PositiveIntegerField(default=0)  # New column for image count
     rating = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)  # Ratings (e.g., 4.5)
     reviews = models.TextField(null=True, blank=True)  # Reviews (text field)
+    subcategory = models.CharField(max_length=50, null=True, blank=True)  # Subcategory (e.g., "Laptop", "Desktop", "Tablet")
 
     def save(self, *args, **kwargs):
         # Dynamically calculate image_count based on image_path array length
