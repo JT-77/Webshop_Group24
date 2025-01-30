@@ -14,31 +14,28 @@ const Header = () => {
 		<header className="bg-white shadow-md top-0 left-0 w-full z-20">
 			<div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
 				<h1 className="text-2xl font-bold text-blue-600">
-					<a href="/">Webshop24</a>
+					<Link to="/">Webshop24</Link>
 				</h1>
 
 				<nav className="hidden md:flex space-x-6">
-					<a href="/" className="text-gray-700 hover:text-blue-600 font-medium">
+					<Link
+						to="/"
+						className="text-gray-700 hover:text-blue-600 font-medium"
+					>
 						Home
-					</a>
-					<a
-						href="/products"
+					</Link>
+					<Link
+						to="/products"
 						className="text-gray-700 hover:text-blue-600 font-medium"
 					>
 						Products
-					</a>
-					<a
-						href="/categories"
-						className="text-gray-700 hover:text-blue-600 font-medium"
-					>
-						Categories
-					</a>
-					<a
-						href="/about"
+					</Link>
+					<Link
+						to="/about"
 						className="text-gray-700 hover:text-blue-600 font-medium"
 					>
 						About Us
-					</a>
+					</Link>
 				</nav>
 
 				<div className="relative hidden md:flex items-center w-1/3">
