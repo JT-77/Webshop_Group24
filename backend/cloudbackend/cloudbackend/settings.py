@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-0w+91@3vhu_8ba1xall+011c2r%^-1md_+vrf54ljngr=btp0i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["54.163.17.7"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -38,14 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    "corsheaders",
     'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -85,8 +83,10 @@ DATABASES = {
         'PASSWORD': 'sikar192',
         'HOST':'database-1.c7o0kige23m9.us-east-1.rds.amazonaws.com',
         'PORT':'3306',
+        
+    }
+}
 
-    }}
 
 
 
@@ -146,10 +146,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'webshop.alerts3011@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'mksc rgwm znta wnkx'  # Replace with your email password
 
-
-CORS_ALLOWED_ORIGINS = [
-    "http://54.163.17.7",
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
 

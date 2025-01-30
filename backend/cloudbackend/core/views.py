@@ -301,7 +301,13 @@ class OrderManagementView(View):
 
                     # Deduct the stock
                     product.inventory.stock -= item['quantity']
+                    
+
                     product.inventory.save()
+
+                    if product.inventory.stock < 5:
+                        sendLowStockEmail(product)
+
 
                     # Create the order details
                     OrderDetails.objects.create(
@@ -493,6 +499,31 @@ def send_status_update_email(customer_name, customer_email, order_id, previous_s
     email.content_subtype = "html"  # Send as HTML
     email.body = html_content
     email.send()
+
+def sendLowStockEmail():
+    supplier = product.supplier
+    subject = f"Low Stock Alert for Product: {product.name}"
+    message = (
+                    f"Dear {supplier.name},\n\n"
+                    f"The stock for your product '{product.name}' is low.\n"
+                    f"Current Stock: {product.inventory.stock}\n\n"
+                    "Please restock to avoid potential shortages.\n"
+                    "Thank you."
+                )
+    send_mail(
+                    subject,
+                    message,
+                    'webshop.alerts3011@gmail.com',  # Replace with your sender email
+                    [supplier.email]
+                )
+
+    return JsonResponse({
+                "message": "Low stock check completed. Emails sent to suppliers.",
+                "low_stock_products": [
+                    {"product_name": p.name, "stock": p.inventory.stock, "supplier": p.supplier.name}
+                    for p in low_stock_products
+                ]
+            })
 
 
 @method_decorator(user_passes_test(lambda u: u.is_superuser), name='dispatch')
