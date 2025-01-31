@@ -16,13 +16,16 @@ jobs:
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: "54.163.17.7"
           username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            SHA256:thUif5JDsusQKaXMQmNkM14UPtmLUgN870clhFmA32o prpareek21@gmail.com
+            -----END RSA PRIVATE KEY-----
           script: |
-            cd /home/ec2-user/.ssh/Webshop_Group24  # Change to your project directory
+            cd /home/ec2-user/Webshop_Group24/backend/cloudbackend  # Change to your project directory
             git pull origin dev
-            # source venv/bin/activate
+            source /home/ec2-user/venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate
             python manage.py collectstatic --noinput

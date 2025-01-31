@@ -10,6 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+
+
+AWS_ACCESS_KEY_ID = 'AKIATJHQDY2ZSLX7DLEQ'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'cloudbucket24'
+AWS_S3_REGION_NAME = 'us-east.-1'  
+AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+# Storage settings
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'storages',
     'rest_framework',
 ]
 
