@@ -11,6 +11,7 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from django.utils.decorators import method_decorator
+from django.db.models import Q, F
 
   # Import the Response class
 
@@ -75,6 +76,59 @@ class ProductListView(View):
             return JsonResponse({"error": "Product ID is required"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+        
+
+class productFilterAPI(View):
+    def get(self, request, *args, **kwargs):
+        """API to fetch and filter products based on various parameters."""
+        
+        # Get query parameters
+        search_query = request.GET.get('search', '')
+        selected_sort_by = request.GET.get('selectedSortBy', '')
+        include_out_of_stock = request.GET.get('includeOutOfStock', 'false').lower() == 'true'
+        category = request.GET.getlist('category', [])  # Can have multiple values
+        customer_ratings = request.GET.get('customerRatings', None)
+        min_price = request.GET.get('min_price', None)
+        max_price = request.GET.get('max_price', None)
+
+        # Get all products
+        products = Product.objects.all()
+
+        # Apply search filter (product name or description)
+        if search_query:
+            products = products.filter(Q(subcategory__icontains=search_query) | Q(description__icontains=search_query))
+
+        # Apply category filter
+        if category:
+            products = products.filter(category__in=category)
+
+        # Apply price range filter
+        if min_price:
+            products = products.filter(price__gte=min_price)
+        if max_price:
+            products = products.filter(price__lte=max_price)
+
+        # Apply customer rating filter
+        if customer_ratings:
+            products = products.filter(rating__gte=float(customer_ratings))
+
+        # Exclude out-of-stock items if includeOutOfStock is False
+        if not include_out_of_stock:
+            products = products.filter(inventory__stock__gt=0)
+
+        # Sorting logic
+        if selected_sort_by == "Price: Low to High":
+            products = products.order_by(F("price").asc(nulls_last=True))
+        elif selected_sort_by == "Price: High to Low":
+            products = products.order_by(F("price").desc(nulls_last=True))
+
+        sorted_products = list(products)
+
+        print("Final Sorted Products:", sorted_products)
+
+        print("SQL Query:", str(products.query))
+        serializer = ProductSerializer(products, many=True)
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
 
 class ProductUpdateView(View):
     def put(self, request, product_id):
@@ -253,12 +307,10 @@ class OrderListView(View):
 
 # Order Management
 class OrderManagementView(View):
-    
-    #@method_decorator(csrf_exempt)  # Consider removing csrf_exempt in production if using DRF
+
     @method_decorator(csrf_exempt)
     def post(self, request):
         try:
-            # Parse the request body to get order data
             data = json.loads(request.body)
 
             # Validate required fields
@@ -271,60 +323,71 @@ class OrderManagementView(View):
             except Customer.DoesNotExist:
                 return JsonResponse({"error": "Customer not found"}, status=404)
 
-                # Determine the shipping address
             shipping_address = data.get('shipping_address', customer.shipping_address)
 
-            # Create a payment entry
-            payment = Payment.objects.create(
-                payment_method=data['payment_method'],
-                transaction_id=f"TXN_{Payment.objects.count() + 1}"
-            )
+            # Begin a database transaction
+            with transaction.atomic():
+                # Create a payment entry
+                payment = Payment.objects.create(
+                    payment_method=data['payment_method'],
+                    transaction_id=f"TXN_{Payment.objects.count() + 1}"
+                )
 
-            # Create the order
-            order = Order.objects.create(
-                customer=customer,
-                order_status="Confirmed",  # Default status, can be customized
-                order_amount=data['amount'],
-                order_date=data.get('order_date', None),  # Optional field
-                payment=payment,
-                shipping_address=shipping_address
-            )
+                # Create the order
+                order = Order.objects.create(
+                    customer=customer,
+                    order_status="Confirmed",
+                    order_amount=data['amount'],
+                    order_date=data.get('order_date', None),
+                    payment=payment,
+                    shipping_address=shipping_address
+                )
 
-            # Handle order details (products in the order)
-            for item in data['products']:
-                try:
-                    product = Product.objects.get(pk=item['product_id'])
+                # Handle order details (products in the order)
+                for item in data['products']:
+                    try:
+                        # Ensure product selection happens inside the transaction
+                        product = Product.objects.select_for_update().get(pk=item['product_id'])
 
-                    # Check if the product is in stock
-                    if product.inventory.stock < item['quantity']:
-                        return JsonResponse({"error": f"Insufficient stock for product {product.name}"}, status=400)
+                        print(f"Before update: {product.name} stock = {product.inventory.stock}")
 
-                    # Deduct the stock
-                    product.inventory.stock -= item['quantity']
-                    product.inventory.save()
+                        # Check stock availability
+                        if product.inventory.stock < item['quantity']:
+                            return JsonResponse({"error": f"Insufficient stock for product {product.name}"}, status=400)
 
-                    # Create the order details
-                    OrderDetails.objects.create(
-                        order=order,
-                        product=product,
-                        product_quantity=item['quantity'],
-                    )
-                except Product.DoesNotExist:
-                    return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
+                        # Deduct stock
+                        product.inventory.stock -= item['quantity']
+                        product.inventory.save(update_fields=['stock'])
 
-            return JsonResponse({
-                "message": "Order created successfully",
-                "order_id": order.order_id,
-                "status": order.order_status,
-                "amount": order.order_amount,
-                "transaction_id": payment.transaction_id
-            }, status=201)
+                        print(f"After update: {product.name} stock = {product.inventory.stock}")
+
+                        # Send low stock alert if necessary
+                        if product.inventory.stock < 5:
+                            sendLowStockEmail(product)
+
+                        # Create order details
+                        OrderDetails.objects.create(
+                            order=order,
+                            product=product,
+                            product_quantity=item['quantity'],
+                        )
+
+                    except Product.DoesNotExist:
+                        return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
+
+                return JsonResponse({
+                    "message": "Order created successfully",
+                    "order_id": order.order_id,
+                    "status": order.order_status,
+                    "amount": order.order_amount,
+                    "transaction_id": payment.transaction_id
+                }, status=201)
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON payload"}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-        
+
 
 
 # Cart Management
@@ -494,6 +557,29 @@ def send_status_update_email(customer_name, customer_email, order_id, previous_s
     email.body = html_content
     email.send()
 
+
+
+def sendLowStockEmail(product):  
+    print(f"Sending email for {product.name} - Stock: {product.inventory.stock}")  # Debugging log
+
+    supplier = product.supplier
+    subject = f"Low Stock Alert for Product: {product.name}"
+    message = (
+        f"Dear {supplier.name},\n\n"
+        f"The stock for your product '{product.name}' is low.\n"
+        f"Current Stock: {product.inventory.stock}\n\n"
+        "Please restock to avoid potential shortages.\n"
+        "Thank you."
+    )
+
+    send_mail(
+        subject,
+        message,
+        'webshop.alerts3011@gmail.com',  
+        [supplier.email],
+        fail_silently=False  # This will raise errors if email fails
+    )
+    print(f"Email sent to {supplier.email}")  # Debugging log
 
 @method_decorator(user_passes_test(lambda u: u.is_superuser), name='dispatch')
 class LowStockCheckView(View):
