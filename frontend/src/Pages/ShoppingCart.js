@@ -6,9 +6,10 @@ import {
 } from "@heroicons/react/24/solid";
 import Footer from "../Components/Footer";
 import Header from "../Components/Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ShoppingCart = () => {
+	const navigate = useNavigate();
 	const [cartItems, setCartItems] = useState([
 		{
 			id: 1,
@@ -195,7 +196,10 @@ const ShoppingCart = () => {
 								<p>Total</p>
 								<p>€{total.toFixed(2)}</p>
 							</div>
-							<button className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
+							<button
+								onClick={() => navigate("/checkout")}
+								className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+							>
 								Proceed to Checkout
 							</button>
 						</div>

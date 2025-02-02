@@ -1,0 +1,57 @@
+name: Deploy to AWS EC2 (Amazon Linux)
+
+on:
+  push:
+    branches:
+      - dev  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: "54.163.17.7"
+          username: ec2-user
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEowIBAAKCAQEA0sZtMRoigtPW+Peeah+1oPDObV88loAf4AT1KmJHarQP4Nsk
+            f2YVXprm/k+rvHtQPUV7dKnjzWhQmI5PiUgJiSrXEDPEancYW2iUBGwpueTw7rMe
+            oE3OkROwdBfm4ur0bHgYQVlVsk8sQY4QsOglq+WXrOmF+s938o13nBcYRRsd6E0w
+            XHvx6292O1DF7zUEZ7deoYnSYlg6rAx3Do/N0ln110DZoaUgVMee3CmokiWWDmtv
+            XJIALzlMvqQXI3YvneEeksmXP0L3wAUShbt4OfObGqe3is/T4L9yx15Zf0yBvx4V
+            JkD842Uocsf2RhBDErgIlpHL2TdXGN0Cbd2y6wIDAQABAoIBAGOadVsw2IIujXYV
+            vfy0g2ZMpaA10zHj1ixM63Zd/xXDhYViybqSiSKt3N7s02E8fMyXmyGkbwxQcVXG
+            WnurWSZC4mK7s+QD57S6lMgKPSWltN14M87ZNfaE8WvLJ8av9VWU4xFun/qlQ2qv
+            MeAHtFWpJ6YErNW7WRl8FLvkhgmRTO7DVX36lv+OL1pFZivLeIDr+rJnsDOmuD/5
+            FM1ZTN290HYroDrCLDz+J8s8Keh4NntWO/MMP4x7RwnWsNm/NiP0YjgJ+Pkn6lpz
+            2u7t5Q6J1+pHCt1Er1rnDpCq8e+o7slrbQY2vtpalWC7/lAY2bG93uYReouXZzca
+            2IYceaECgYEA98Jw3HJ95NKGTQZOqDveyYxV5/gNupytgoFGbpyfI/1//w16/9JM
+            Dm5/Qbrf6UR0yyeNKu/Xe3WG2W+W2GZkfGNdJpQody+GEC7vldvzylijVS0wmPKH
+            u1NCJONYdbGj18PsKusDg5eQhoxqEOXATuJ3vRs8OM4K5Xs3G5rcxEkCgYEA2ckU
+            hLS94cPxQRNgLh+kSspqLdn0KSLmhFVIf4W+puWLEi6aARqIYGriNIx3WZe0NPWK
+            98EwiVC2Ey6JCC3NG/dsfd5KfQ/Ypkc/7hVp8TIEFuBMPgUVUhJFqVlF3TwvetQk
+            8zpVMEf/8uV6r7IWTtzAP4vMElUKIgrgFM8HFZMCgYEAy8/QOAiXN91XTZWarxpR
+            M0uWf7S21oR815aw8d01rM2ktZPJUxkUJ+sOFGw+Ng5yZYyrvF6AzLbpr4T0eiAB
+            GbJDtrC6eRFHH5j8zjKaYiJ4emEqUSdyMM9U4jODWY5AUgaCCOw7f8z2vzhTKINX
+            p4z1I0N8Tt5waEbsFnFWmsECgYARnnjwe4bZGvcLorunP5wVCOcqKnXcVhx8HEIv
+            Puy7p9pmcCq5aCIcWslOIwcM0n8bwbmqbZC1qzfvuVYQuVPcrVmznSY9k+idGyqK
+            4mSdxMQb7a19Xv/okd3c44IJcfMNZthObSuzKkAEsJgKWsf/PVC4U2EBIqwdMPAL
+            /uu9zQKBgHpFM7nCwAg4alXh8AUJLTFA3qzMyWdobqehhg21ky3nWlERW74uUABN
+            JWW/8qINnoNPmdK5OwonWiB4/BU5XYV8oLE2jj6g0yzuXIaj9KPtxLtkucpNGi25
+            zK/cLnn+7HV80k8A1IbVHjd394Myyp/tnbqjzG7S0hceACSvugsZ
+            -----END RSA PRIVATE KEY-----
+          script: |
+            cd /home/ec2-user/Webshop_Group24/backend/cloudbackend  # Change to your project directory
+            git pull origin dev
+            source /home/ec2-user/venv/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate
+            python manage.py collectstatic --noinput
+            sudo systemctl restart gunicorn
+            sudo systemctl restart nginx
