@@ -180,6 +180,77 @@ class ProductUpdateView(View):
             return JsonResponse({"error": str(e)}, status=500)
 
 
+class FilteredProductListView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            # Extract filters from request body
+            selected_sort_by = data.get("selectedSortBy", None)
+            include_out_of_stock = data.get("includeOutOfStock", True)  # Default: Show all products
+            categories = data.get("category", [])
+            customer_ratings = data.get("customerRatings", None)
+            price_range = data.get("price_range", None)
+            search_query = data.get("search", "").strip()
+
+            # Start with all products
+            products = Product.objects.all()
+
+            # Apply Category Filter
+            if categories:
+                products = products.filter(category__in=categories)
+                print(products)
+            # Apply Stock Filter
+            if not include_out_of_stock:
+                products = products.filter(inventory__stock__gt=0)  # Exclude out-of-stock products
+                print(products)
+            # Apply Customer Ratings (Assuming ratings exist in Product model)
+            if customer_ratings:
+                products = products.filter(rating__gte=int(customer_ratings))  # Rating >= given value
+                print(products)
+            # Apply Price Range Filter
+            if price_range and len(price_range) == 2:
+                min_price, max_price = price_range
+                products = products.filter(price__gte=min_price, price__lte=max_price)
+                print(products)
+            # Apply Search Filter
+            if search_query:
+                products = products.filter(
+                    Q(name__icontains=search_query) | Q(description__icontains=search_query)
+                )
+                print(products)
+            # Apply Sorting
+            if selected_sort_by:
+                if selected_sort_by == "Price: Low to High":
+                    products = products.order_by("price")
+                elif selected_sort_by == "Price: High to Low":
+                    products = products.order_by("-price")
+                elif selected_sort_by == "Newest First":
+                    products = products.order_by("-id")  # Assuming newest products have higher IDs
+
+            # Serialize Response
+            product_list = [
+                {
+                    "product_id": product.product_id,
+                    "name": product.name,
+                    "price": product.price,
+                    "category": product.category,
+                    "stock": product.inventory.stock if product.inventory else 0,
+                    "rating": getattr(product, "rating", "N/A"),  # Assuming rating field exists
+                    "image": product.image_path[0] if product.image_path else None
+                }
+                for product in products
+            ]
+
+            return JsonResponse({"products": product_list}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON payload"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+
 class ProductInsertView(View):
     def post(self, request):
         """
