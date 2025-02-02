@@ -216,7 +216,7 @@ class FilteredProductListView(View):
             # Apply Search Filter
             if search_query:
                 products = products.filter(
-                    Q(name__icontains=search_query) | Q(description__icontains=search_query)
+                    Q(name__icontains=search_query) | Q(description__icontains=search_query) | Q(subcategory__icontains=search_query) | Q(category__icontains=search_query)
                 )
                 print(products)
             # Apply Sorting
