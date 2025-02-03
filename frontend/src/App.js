@@ -10,6 +10,7 @@ import PrivacyPolicy from "./Pages/PrivacyPolicy";
 import Imprint from "./Pages/Imprint";
 import Checkout from "./Pages/Checkout";
 import { ProductProvider } from "./Context/ProductContext";
+import AboutUs from "./Pages/AboutUs";
 
 const App = () => {
 	return (
@@ -25,6 +26,7 @@ const App = () => {
 					<Route path="/privacy-policy" element={<PrivacyPolicy />} />
 					<Route path="/imprint" element={<Imprint />} />
 					<Route path="/checkout" element={<Checkout />} />
+					<Route path="/about" element={<AboutUs />} />
 					<Route path="*" element={<NotFoundPage />} />
 				</Routes>
 			</Router>
