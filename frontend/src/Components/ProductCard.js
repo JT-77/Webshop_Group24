@@ -46,9 +46,9 @@ const ProductCard = ({ product }) => {
 	return (
 		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 flex flex-col">
 			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
-				<Link to={`/product/${product.id}`}>
+				<Link to={`/product/${product.product_id}`}>
 					<img
-						src={product.image}
+						src={product.image_path && product.image_path[0]}
 						alt={product.name}
 						className="w-full h-full object-cover transition-transform transform hover:scale-110"
 					/>
@@ -58,7 +58,7 @@ const ProductCard = ({ product }) => {
 			{/* Mobile View */}
 			<div className="block sm:hidden flex flex-col justify-between p-3 space-y-2">
 				<div className="flex justify-between items-center">
-					<Link to={`/product/${product.id}`}>
+					<Link to={`/product/${product.product_id}`}>
 						<h3 className="text-sm font-medium text-gray-800 truncate">
 							{product.name}
 						</h3>
@@ -75,7 +75,7 @@ const ProductCard = ({ product }) => {
 
 				<div className="flex items-center space-x-1 text-xs text-gray-500">
 					{renderStars()}
-					<span>({product.rating.toFixed(1)})</span>
+					<span>({parseFloat(product.rating).toFixed(1)})</span>
 				</div>
 
 				<button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1">
@@ -86,7 +86,7 @@ const ProductCard = ({ product }) => {
 
 			{/* Desktop View */}
 			<div className="hidden sm:flex flex-col justify-between flex-grow p-2 space-y-2">
-				<Link to={`/product/${product.id}`}>
+				<Link to={`/product/${product.product_id}`}>
 					<h3 className="text-lg font-semibold text-gray-800 text-left">
 						{product.name}
 					</h3>
@@ -99,7 +99,7 @@ const ProductCard = ({ product }) => {
 				<div className="flex items-center space-x-1">
 					{renderStars()}
 					<span className="text-xs text-gray-500">
-						({product.rating.toFixed(1)})
+						({parseFloat(product.rating).toFixed(1)})
 					</span>
 				</div>
 
