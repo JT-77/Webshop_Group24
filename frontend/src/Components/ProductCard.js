@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useContext } from "react";
+import CartContext from "../Context/CartContext";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
+	const { cartItems, dispatch } = useContext(CartContext);
+
 	const renderStars = () => {
 		const totalStars = 5;
 
@@ -43,6 +46,11 @@ const ProductCard = ({ product }) => {
 		);
 	};
 
+	const handleAddToCart = (prod) => {
+		const data = { ...prod, quantity: 1 };
+		dispatch({ type: "ADD_TO_CART", payload: data });
+	};
+
 	return (
 		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 flex flex-col">
 			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
@@ -78,7 +86,10 @@ const ProductCard = ({ product }) => {
 					<span>({parseFloat(product.rating).toFixed(1)})</span>
 				</div>
 
-				<button className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1">
+				<button
+					onClick={() => handleAddToCart(product)}
+					className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1"
+				>
 					<ShoppingCartIcon className="h-4 w-4" />
 					<span>Add to Cart</span>
 				</button>
@@ -112,7 +123,10 @@ const ProductCard = ({ product }) => {
 						<p className="text-xl font-bold text-gray-800">€{product.price}</p>
 						<p className="text-sm text-gray-500 line-through">€{product.mrp}</p>
 					</div>
-					<button className="w-24 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+					<button
+						onClick={() => handleAddToCart(product)}
+						className="w-24 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+					>
 						Add to Cart
 					</button>
 				</div>

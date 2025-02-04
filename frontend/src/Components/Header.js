@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext, use } from "react";
 import {
 	ShoppingCartIcon,
 	UserIcon,
 	MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
+import CartContext from "../Context/CartContext";
 
 const Header = () => {
-	const [cartItems, setCartItems] = useState(3);
+	const { totalQuantity } = useContext(CartContext);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
 
 	return (
@@ -76,9 +77,9 @@ const Header = () => {
 						>
 							<ShoppingCartIcon className="h-6 w-6" />
 						</Link>
-						{cartItems > 0 && (
+						{totalQuantity > 0 && (
 							<span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-								{cartItems}
+								{totalQuantity}
 							</span>
 						)}
 					</div>

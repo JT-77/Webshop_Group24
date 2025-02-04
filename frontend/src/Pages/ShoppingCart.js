@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
 	QuestionMarkCircleIcon,
 	TrashIcon,
@@ -7,48 +7,25 @@ import {
 import Footer from "../Components/Footer";
 import Header from "../Components/Header";
 import { Link, useNavigate } from "react-router-dom";
+import CartContext from "../Context/CartContext";
 
 const ShoppingCart = () => {
+	const { cartItems, dispatch } = useContext(CartContext);
 	const navigate = useNavigate();
-	const [cartItems, setCartItems] = useState([
-		{
-			id: 1,
-			name: "Nike Cool T-Shirt with Batman design",
-			mrp: 29,
-			price: 25.99,
-			description: "A trendy t-shirt for casual outings.",
-			image: "/tshirt.jpeg",
-			quantity: 4,
-		},
-		{
-			id: 2,
-			name: "Stylish Jacket for winters",
-			mrp: 69,
-			price: 59.99,
-			description: "Keep warm with this stylish jacket.",
-			image: "/tshirt.jpeg",
-			quantity: 2,
-		},
-	]);
 
 	const handleQuantityChange = (id, delta) => {
-		setCartItems((prevItems) =>
-			prevItems.map((item) =>
-				item.id === id
-					? { ...item, quantity: Math.max(1, item.quantity + delta) }
-					: item
-			)
-		);
+		const data = { product_id: id, quantity: delta };
+		dispatch({ type: "UPDATE_QUANTITY", payload: data });
 	};
 
 	const handleRemoveItem = (id) => {
-		setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+		dispatch({ type: "REMOVE_FROM_CART", payload: id });
 	};
 
 	const calculateSubtotal = () =>
 		cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-	const shippingCost = 5.0;
+	const shippingCost = calculateSubtotal() >= 50 ? 0.0 : 5.0;
 	const tax = 0.1 * calculateSubtotal(); // 10% tax
 	const total = calculateSubtotal() + shippingCost + tax;
 
@@ -79,14 +56,14 @@ const ShoppingCart = () => {
 							<h1 className="text-xl font-semibold mb-4">Your Cart</h1>
 							{cartItems.map((item) => (
 								<div
-									key={item.id}
+									key={item.product_id}
 									className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b py-4"
 								>
 									{/* Mobile Layout */}
 									<div className="flex flex-row w-full gap-4">
 										<div>
 											<img
-												src={item.image}
+												src={item.image_path && item.image_path[0]}
 												alt={item.name}
 												className="w-24 h-24 object-cover rounded"
 											/>
@@ -103,14 +80,18 @@ const ShoppingCart = () => {
 
 											<div className="md:hidden flex justify-end items-center gap-2 mt-2">
 												<button
-													onClick={() => handleQuantityChange(item.id, -1)}
+													onClick={() =>
+														handleQuantityChange(item.product_id, -1)
+													}
 													className="px-3 py-1 bg-gray-200 rounded"
 												>
 													-
 												</button>
 												<span className="w-8 text-center">{item.quantity}</span>
 												<button
-													onClick={() => handleQuantityChange(item.id, 1)}
+													onClick={() =>
+														handleQuantityChange(item.product_id, 1)
+													}
 													className="px-3 py-1 bg-gray-200 rounded"
 												>
 													+
@@ -118,7 +99,7 @@ const ShoppingCart = () => {
 											</div>
 
 											<button
-												onClick={() => handleRemoveItem(item.id)}
+												onClick={() => handleRemoveItem(item.product_id)}
 												style={{ width: "80px", textAlign: "right" }}
 												className="md:hidden text-red-500 self-end text-sm hover:underline flex align-end items-center gap-1 mt-2"
 											>
@@ -132,14 +113,18 @@ const ShoppingCart = () => {
 										<div className="flex-1 flex items-center flex-row">
 											<div className="flex justify-end items-center gap-2">
 												<button
-													onClick={() => handleQuantityChange(item.id, -1)}
+													onClick={() =>
+														handleQuantityChange(item.product_id, -1)
+													}
 													className="px-3 py-1 bg-gray-200 rounded"
 												>
 													-
 												</button>
 												<span className="w-8 text-center">{item.quantity}</span>
 												<button
-													onClick={() => handleQuantityChange(item.id, 1)}
+													onClick={() =>
+														handleQuantityChange(item.product_id, 1)
+													}
 													className="px-3 py-1 bg-gray-200 rounded"
 												>
 													+
@@ -155,7 +140,7 @@ const ShoppingCart = () => {
 										</div>
 
 										<button
-											onClick={() => handleRemoveItem(item.id)}
+											onClick={() => handleRemoveItem(item.product_id)}
 											className="text-red-500 self-end text-sm hover:underline flex align-end items-center gap-1 mt-10"
 										>
 											<TrashIcon className="w-4 h-4" /> Remove
