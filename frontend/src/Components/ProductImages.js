@@ -1,22 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
-export default function ProductImageGallery() {
-	const [selectedImage, setSelectedImage] = useState(
-		"https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg"
-	);
+const ProductImageGallery = ({ images }) => {
+	const [selectedImage, setSelectedImage] = useState(images[0]);
 	const [isZoomed, setIsZoomed] = useState(false);
 	const [backgroundPosition, setBackgroundPosition] = useState("center");
 
-	const images = [
-		"https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg",
-		"https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-02.jpg",
-		"https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-03.jpg",
-		"https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-04.jpg",
-	];
-
 	const [scrollIndex, setScrollIndex] = useState(0);
 	const thumbnailsToShow = window.innerWidth < 768 ? 3 : 5;
+
+	useEffect(() => {
+		if (images) setSelectedImage(images[0]);
+	}, [images]);
 
 	const handleMouseMove = (e) => {
 		const { left, top, width, height } =
@@ -52,6 +47,7 @@ export default function ProductImageGallery() {
 								backgroundImage: `url(${selectedImage})`,
 								backgroundPosition,
 								backgroundSize: "150%",
+								backgroundRepeat: "no-repeat",
 						  }
 						: {}
 				}
@@ -120,4 +116,6 @@ export default function ProductImageGallery() {
 			</p>
 		</div>
 	);
-}
+};
+
+export default ProductImageGallery;
