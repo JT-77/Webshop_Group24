@@ -22,8 +22,11 @@ jobs:
           script: |
             cd /home/ec2-user/Webshop_Group24  
             git pull origin dev
+            cd /home/ec2-user/Webshop_Group24/frontend
+            rm -rf build
+            npm run build 
             sudo systemctl restart nginx
-            cd backend/cloudbackend
+            cd /home/ec2-user/Webshop_Group24/backend/cloudbackend
             source venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate
