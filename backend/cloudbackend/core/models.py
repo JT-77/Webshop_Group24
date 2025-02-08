@@ -1,4 +1,10 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import logging
 
 class Customer(models.Model):
     customer_id = models.AutoField(primary_key=True)
@@ -38,7 +44,7 @@ class Product(models.Model):
     image_path=models.JSONField(default=list, null=True, blank=True) 
     image_count = models.PositiveIntegerField(default=0)  # New column for image count
     rating = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)  # Ratings (e.g., 4.5)
-    reviews = models.TextField(null=True, blank=True)  # Reviews (text field)
+    reviews = models.JSONField(default=list, null=True, blank=True)  # Reviews (text field)
     subcategory = models.CharField(max_length=50, null=True, blank=True)  # Subcategory (e.g., "Laptop", "Desktop", "Tablet")
 
     def save(self, *args, **kwargs):
@@ -68,6 +74,9 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.order_id}"
+    
+
+    
 
 class OrderDetails(models.Model):
     order_details_id = models.AutoField(primary_key=True)
@@ -77,3 +86,5 @@ class OrderDetails(models.Model):
 
     def __str__(self):
         return f"OrderDetails {self.order_details_id}"
+    
+

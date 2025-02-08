@@ -168,7 +168,7 @@ class ProductUpdateView(View):
             if 'rating' in data:
                 product.ratings = data['rating']
             if 'reviews' in data:
-                product.reviews = data['reviews']
+                product.reviews = data['reviews'] if isinstance(data['reviews'], list) else []
             # Save the product
             product.save()
 
@@ -414,6 +414,9 @@ class OrderManagementView(View):
                     shipping_address=shipping_address
                 )
 
+               
+
+
                 # Handle order details (products in the order)
                 for item in data['products']:
                     try:
@@ -611,6 +614,13 @@ def send_status_update_email(customer_name, customer_email, order_id, previous_s
     elif new_status == "Cancelled":
         subject = "Your Order is Cancelled"
         html_content = render_to_string("emails/order_cancelled.html", {
+            "customer_name": customer_name,
+            "order_id": order_id
+        })
+
+    elif new_status == "Delivered":
+        subject = "Your Order is Delivered!"
+        html_content = render_to_string("emails/order_delivered.html", {
             "customer_name": customer_name,
             "order_id": order_id
         })

@@ -14,6 +14,10 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+    def get_reviews(self, obj):
+        # Return an empty list if reviews is None
+        return obj.reviews if obj.reviews is not None else []    
+
 class OrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.ReadOnlyField(source='customer.name')
     products = serializers.SerializerMethodField()
