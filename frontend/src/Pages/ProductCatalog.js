@@ -6,7 +6,7 @@ import Footer from "../Components/Footer";
 import ProductContext from "../Context/ProductContext";
 
 const ProductCatalog = () => {
-	const { products, fetchProducts } = useContext(ProductContext);
+	const { products, search, fetchProducts } = useContext(ProductContext);
 
 	useEffect(() => {
 		if (products.length === 0) {
@@ -27,9 +27,19 @@ const ProductCatalog = () => {
 				<Sidebar applyFilters={handleApplyFilters} />
 
 				<section className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{products.map((product) => (
-						<ProductCard key={product.id} product={product} />
-					))}
+					{products
+						.filter(
+							(item) =>
+								item.name.toLowerCase().includes(search.toLowerCase()) ||
+								item.description.toLowerCase().includes(search.toLowerCase())
+						)
+						.map((product) => (
+							<ProductCard
+								className="max-h-2"
+								key={product.id}
+								product={product}
+							/>
+						))}
 				</section>
 			</div>
 			<Footer />

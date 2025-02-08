@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
 			<div className="flex space-x-1">
 				{Array.from({ length: totalStars }, (_, i) => {
 					const fillPercentage =
-						Math.min(Math.max(product.rating - i, 0.5), 1) * 100;
+						Math.min(Math.max(product.rating - i, 0), 1) * 100;
 
 					return (
 						<div key={i} className="relative">
@@ -52,7 +52,7 @@ const ProductCard = ({ product }) => {
 	};
 
 	return (
-		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2 flex flex-col">
+		<div className="relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all max-h-none md:max-h-[480px] transform hover:-translate-y-2 flex flex-col">
 			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
 				<Link to={`/product/${product.product_id}`}>
 					<img
@@ -67,7 +67,7 @@ const ProductCard = ({ product }) => {
 			<div className="block sm:hidden flex flex-col justify-between p-3 space-y-2">
 				<div className="flex justify-between items-center">
 					<Link to={`/product/${product.product_id}`}>
-						<h3 className="text-sm font-medium text-gray-800 truncate">
+						<h3 className="text-sm font-medium whitespace-pre-wrap text-gray-800 truncate">
 							{product.name}
 						</h3>
 					</Link>
@@ -85,7 +85,7 @@ const ProductCard = ({ product }) => {
 					</div>
 				</div>
 
-				<p className="text-sm text-gray-600 line-clamp-2 text-left">
+				<p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-2 text-left">
 					{product.description}
 				</p>
 

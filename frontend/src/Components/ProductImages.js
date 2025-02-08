@@ -32,7 +32,7 @@ const ProductImageGallery = ({ images }) => {
 	return (
 		<div className="flex flex-col items-center">
 			<div
-				className={`relative w-full max-w-lg h-[300px] sm:h-[400px] md:h-[500px] rounded-lg shadow-lg overflow-hidden transition-all ${
+				className={`relative w-full max-w-sm sm:max-w-md md:max-w-lg h-[300px] sm:h-[400px] md:h-[500px] rounded-lg shadow-lg overflow-hidden transition-all ${
 					isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
 				}`}
 				onMouseEnter={() => window.innerWidth >= 768 && setIsZoomed(true)}
@@ -62,7 +62,7 @@ const ProductImageGallery = ({ images }) => {
 			</div>
 
 			{/* Thumbnails Section */}
-			<div className="relative w-full max-w-lg mt-4">
+			<div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg mt-4">
 				{scrollIndex > 0 && (
 					<button
 						className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full shadow-lg p-2 z-10"

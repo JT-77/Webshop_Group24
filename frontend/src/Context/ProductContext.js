@@ -8,6 +8,7 @@ const initialState = {
 	loading: false,
 	error: null,
 	productDetails: null,
+	search: "",
 };
 
 const productReducer = (state, action) => {
@@ -20,6 +21,11 @@ const productReducer = (state, action) => {
 			return { ...state, error: action.payload, loading: false };
 		case "SET_PRODUCT_DETAILS":
 			return { ...state, productDetails: action.payload };
+		case "SEARCH_PRODUCTS":
+			return {
+				...state,
+				search: action.payload,
+			};
 		default:
 			return state;
 	}
@@ -53,7 +59,7 @@ export const ProductProvider = ({ children }) => {
 
 	return (
 		<ProductContext.Provider
-			value={{ ...state, fetchProducts, fetchProductById }}
+			value={{ ...state, fetchProducts, fetchProductById, dispatch }}
 		>
 			{children}
 		</ProductContext.Provider>
