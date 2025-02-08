@@ -7,6 +7,7 @@ const initialState = {
 	products: [],
 	loading: false,
 	error: null,
+	productDetails: null,
 };
 
 const productReducer = (state, action) => {
@@ -17,12 +18,14 @@ const productReducer = (state, action) => {
 			return { ...state, products: action.payload, loading: false };
 		case "FETCH_PRODUCTS_ERROR":
 			return { ...state, error: action.payload, loading: false };
+		case "SET_PRODUCT_DETAILS":
+			return { ...state, productDetails: action.payload };
 		default:
 			return state;
 	}
 };
 
-export function ProductProvider({ children }) {
+export const ProductProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(productReducer, initialState);
 
 	const fetchProducts = async () => {
@@ -37,11 +40,24 @@ export function ProductProvider({ children }) {
 		}
 	};
 
+	const fetchProductById = async (productId) => {
+		try {
+			const response = await axios.get(
+				process.env.REACT_APP_API_URL + "/products/" + productId
+			);
+			dispatch({ type: "SET_PRODUCT_DETAILS", payload: response.data });
+		} catch (error) {
+			console.error("Error fetching product details:", error);
+		}
+	};
+
 	return (
-		<ProductContext.Provider value={{ ...state, fetchProducts }}>
+		<ProductContext.Provider
+			value={{ ...state, fetchProducts, fetchProductById }}
+		>
 			{children}
 		</ProductContext.Provider>
 	);
-}
+};
 
 export default ProductContext;

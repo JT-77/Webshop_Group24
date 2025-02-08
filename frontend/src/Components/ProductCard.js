@@ -4,7 +4,7 @@ import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
-	const { cartItems, dispatch } = useContext(CartContext);
+	const { dispatch } = useContext(CartContext);
 
 	const renderStars = () => {
 		const totalStars = 5;
@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
 			<div className="flex space-x-1">
 				{Array.from({ length: totalStars }, (_, i) => {
 					const fillPercentage =
-						Math.min(Math.max(product.rating - i, 0), 1) * 100;
+						Math.min(Math.max(product.rating - i, 0.5), 1) * 100;
 
 					return (
 						<div key={i} className="relative">
@@ -72,8 +72,16 @@ const ProductCard = ({ product }) => {
 						</h3>
 					</Link>
 					<div className="flex items-center space-x-2">
-						<p className="text-sm font-bold text-gray-800">€{product.price}</p>
-						<p className="text-xs text-gray-500 line-through">€{product.mrp}</p>
+						<p className="text-sm font-bold text-gray-800">
+							€
+							{(
+								parseFloat(product.price) -
+								0.1 * parseFloat(product.price)
+							).toFixed(2)}
+						</p>
+						<p className="text-xs text-gray-500 line-through">
+							€{product.price}
+						</p>
 					</div>
 				</div>
 
@@ -120,8 +128,16 @@ const ProductCard = ({ product }) => {
 
 				<div className="flex justify-between items-center py-2 px-1 border-t border-gray-200">
 					<div className="flex items-center space-x-2">
-						<p className="text-xl font-bold text-gray-800">€{product.price}</p>
-						<p className="text-sm text-gray-500 line-through">€{product.mrp}</p>
+						<p className="text-xl font-bold text-gray-800">
+							€
+							{(
+								parseFloat(product.price) -
+								0.1 * parseFloat(product.price)
+							).toFixed(2)}
+						</p>
+						<p className="text-sm text-gray-500 line-through">
+							€{product.price}
+						</p>
 					</div>
 					<button
 						onClick={() => handleAddToCart(product)}
