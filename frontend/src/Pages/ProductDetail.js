@@ -23,7 +23,7 @@ const ProductDetailPage = () => {
 		return (
 			<div className="flex space-x-1">
 				{Array.from({ length: totalStars }, (_, i) => {
-					const fillPercentage = Math.min(Math.max(rating - i, 0.5), 1) * 100;
+					const fillPercentage = Math.min(Math.max(rating - i, 0), 1) * 100;
 
 					return (
 						<div key={i} className="relative">
@@ -66,14 +66,17 @@ const ProductDetailPage = () => {
 					<ImageSection images={productDetails.image_path} />
 
 					<div>
-						<h1 className="text-2xl font-semibold text-gray-800 mb-2">
+						<h1
+							className="text-2xl font-semibold text-gray-800 mb-2"
+							style={{ textWrap: "balance" }}
+						>
 							{productDetails.name}
 						</h1>
 						<div className="flex items-center mb-4">
 							<span className="text-yellow-400 text-lg">
 								{renderStars(productDetails.rating)}
 							</span>
-							<span className="text-gray-600 ml-2">4.5 (320 reviews)</span>
+							<span className="text-gray-600 ml-2">{parseFloat(productDetails.rating).toFixed(1)} (320 reviews)</span>
 						</div>
 
 						<div className="mb-6">
@@ -89,9 +92,9 @@ const ProductDetailPage = () => {
 									€{productDetails.price}
 								</span>
 							</div>
-							<p className="text-red-600 text-lg font-medium mt-2">
-								Only 4 left in stock!
-							</p>
+							{productDetails.inventory < 5 && <p className="text-red-600 text-lg font-medium mt-2">
+								Only {productDetails.inventory} left in stock!
+							</p>}
 						</div>
 
 						<div className="flex items-center space-x-4 mb-8">

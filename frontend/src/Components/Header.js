@@ -1,4 +1,4 @@
-import React, { useState, useContext, use } from "react";
+import React, { useState, useContext } from "react";
 import {
 	ShoppingCartIcon,
 	UserIcon,
@@ -6,10 +6,20 @@ import {
 } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 import CartContext from "../Context/CartContext";
+import ProductContext from "../Context/ProductContext";
 
 const Header = () => {
 	const { totalQuantity } = useContext(CartContext);
+	const { dispatch } = useContext(ProductContext);
 	const [showProfileMenu, setShowProfileMenu] = useState(false);
+	const [showSearch, setShowSearch] = useState(false);
+
+	const handleSearch = (e) => {
+		dispatch({
+			type: "SEARCH_PRODUCTS",
+			payload: e.target.value,
+		});
+	};
 
 	return (
 		<header className="bg-white shadow-md top-0 left-0 w-full z-20">
@@ -44,11 +54,20 @@ const Header = () => {
 					<input
 						type="text"
 						placeholder="Search products..."
+						onChange={handleSearch}
 						className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
 					/>
 				</div>
 
-				<div className="flex items-center space-x-6">
+				<div className="flex items-center space-x-4">
+					<button
+						onClick={() => setShowSearch(!showSearch)}
+						className={`md:hidden ${
+							showSearch ? "text-blue-600" : "text-gray-700"
+						}`}
+					>
+						<MagnifyingGlassIcon className="h-6 w-6" />
+					</button>
 					<div
 						className="relative"
 						onMouseEnter={() => setShowProfileMenu(true)}
@@ -85,6 +104,20 @@ const Header = () => {
 					</div>
 				</div>
 			</div>
+
+			{showSearch && (
+				<div className="px-4 pb-2 flex justify-center md:hidden">
+					<div className="relative w-full max-w-md">
+						<MagnifyingGlassIcon className="absolute top-2.5 left-3 h-5 w-5 text-gray-400" />
+						<input
+							type="text"
+							placeholder="Search products..."
+							onChange={handleSearch}
+							className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+						/>
+					</div>
+				</div>
+			)}
 		</header>
 	);
 };
