@@ -1,8 +1,9 @@
 from django.urls import path
 from .views import *
+from django.contrib import admin
 
 urlpatterns = [
-
+    path('admin/',admin.site.urls),
     path('products/', ProductListView.as_view(), name='product-list'),# GET All
     path('products/<int:product_id>/', ProductListView.as_view(), name='product-detail'),  # GET  for a specific product
     path('products/update/<int:product_id>/', ProductUpdateView.as_view(), name='product-detail'), #PUT
