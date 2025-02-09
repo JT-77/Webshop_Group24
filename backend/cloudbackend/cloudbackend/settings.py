@@ -150,6 +150,11 @@ REST_FRAMEWORK = {
     ),
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://52.91.164.239",
+    "http://webshop-load-balancer-830513104.us-east-1.elb.amazonaws.com",
+]
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
