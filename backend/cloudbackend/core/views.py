@@ -412,15 +412,17 @@ class OrderManagementView(View):
                     order_date=data.get('order_date', None),
                     payment=payment,
                     shipping_address=shipping_address,
-                    email_id=data['email_id']
+                    email_id=data['email_id'],
+                    customer_name=data['customer_name']
                 )
                 
                
 
-
+                purchased_products = []
                 # Handle order details (products in the order)
                 for item in data['products']:
                     try:
+                        
                         # Ensure product selection happens inside the transaction
                         product = Product.objects.select_for_update().get(pk=item['product_id'])
 
@@ -439,31 +441,40 @@ class OrderManagementView(View):
                         # Send low stock alert if necessary
                         if product.inventory.stock < 5:
                             sendLowStockEmail(product)
-
+                         
+                            
                         # Create order details
                         OrderDetails.objects.create(
                             order=order,
                             product=product,
                             product_quantity=item['quantity'],
                         )
-                        send_order_confirmation_email(
-                        customer_name=order.customer.name,
-                        customer_email=order.email_id,  # Fetching from order table
-                        order_amount=order.order_amount
-                    
-                )
+                        # Add product details to email data
+                        purchased_products.append({
+                            "name": product.name,
+                            "quantity": item['quantity'],
+                            "price": product.price
+                        })
+
 
                     except Product.DoesNotExist:
                         return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
                 
-                
+                send_order_confirmation_email(
+                        customer_name=order.customer_name,
+                        customer_email=order.email_id,  # Fetching from order table
+                        order_amount=order.order_amount,
+                        products=purchased_products
+                    
+                )
                 return JsonResponse({
                     "message": "Order created successfully",
                     "order_id": order.order_id,
                     "status": order.order_status,
                     "amount": order.order_amount,
                     "transaction_id": payment.transaction_id,
-                    "email_id": order.email_id
+                    "email_id": order.email_id,
+                    "customer_name": order.customer_name
                 }, status=201)
             
 
@@ -554,7 +565,7 @@ class InventoryManagementView(View):
 # Email Notifications
 
 
-def send_order_confirmation_email(customer_name, customer_email, order_amount):
+def send_order_confirmation_email(customer_name, customer_email, order_amount,products):
     """Sends an order confirmation email to the customer."""
     
     subject = "Order Confirmation - Your Order is Confirmed!"
@@ -563,7 +574,8 @@ def send_order_confirmation_email(customer_name, customer_email, order_amount):
     html_content = render_to_string("emails/order_confirmed.html", {
         "customer_name": customer_name,
         "order_amount": order_amount,
-        "customer_email": customer_email
+        "customer_email": customer_email,
+        "products": products
     })
     
     # Create plain text version of the email

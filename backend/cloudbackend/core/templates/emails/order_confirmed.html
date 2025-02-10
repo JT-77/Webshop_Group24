@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Order Confirmed</title>
+    <title>Order Confirmation</title>
 </head>
 <body>
-    <p>Hello {{ customer_name }},</p>
-    <p>Thank you for shopping with us. We'd like to let you know that we have received your order (ID: {{ order_id }}), and we are preparing it for shipment.</p>
-    <p>If you would like to view the status of your order or make any changes to it, please visit our website at <a href="https://webshop.de">Webshop.de</a>.</p>
-    <p>Thank you for choosing us!</p>
+    <h3>Dear {{ customer_name }},</h3>
+    <p>Thank you for your order!</p>
+
+    <h3>Purchased Products:</h3>
+    <ul>
+        {% for product in products %}
+            <li><strong>{{ product.name }}</strong> - Quantity: {{ product.quantity }} - Price: ${{ product.price }}</li>
+        {% endfor %}
+    </ul>
+
+    <p>Your order has been successfully placed and is now confirmed.</p>
+    <p>Keep Shopping with us!!</p>
+    <br>
+    <p>Best Regards,</p>
+    <p>Webshop Team</p>
 </body>
 </html>

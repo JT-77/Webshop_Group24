@@ -72,6 +72,7 @@ class Order(models.Model):
     shipping_address = models.TextField()
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
     email_id = models.CharField(max_length=50)
+    customer_name = models.CharField(max_length=100)
     def __str__(self):
         return f"Order {self.order_id}"
     
