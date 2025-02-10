@@ -6,6 +6,7 @@ import {
 	PhoneIcon,
 	EnvelopeIcon,
 } from "@heroicons/react/24/outline";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ContactUs = () => {
 	const [formData, setFormData] = useState({
@@ -58,11 +59,6 @@ const ContactUs = () => {
 						<h3 className="text-xl sm:text-2xl font-semibold mb-4">
 							Get in Touch
 						</h3>
-						{successMessage && (
-							<div className="mb-4 p-4 text-green-700 bg-green-100 border border-green-400 rounded-lg">
-								{successMessage}
-							</div>
-						)}
 						<form onSubmit={handleSubmit}>
 							<div className="mb-4">
 								<label
@@ -155,6 +151,19 @@ const ContactUs = () => {
 						</div>
 					</div>
 				</div>
+				<AnimatePresence>
+					{successMessage && (
+						<motion.p
+							className="mt-4 text-green-500 text-lg"
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 1, ease: "easeInOut" }}
+						>
+							{successMessage}
+						</motion.p>
+					)}
+				</AnimatePresence>
 			</div>
 			<Footer />
 		</div>

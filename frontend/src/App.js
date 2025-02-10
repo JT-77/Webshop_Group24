@@ -11,6 +11,7 @@ import Imprint from "./Pages/Imprint";
 import Checkout from "./Pages/Checkout";
 import { ProductProvider } from "./Context/ProductContext";
 import { CartProvider } from "./Context/CartContext";
+import Home from "./Pages/Home";
 
 const App = () => {
 	return (
@@ -18,7 +19,7 @@ const App = () => {
 			<CartProvider>
 				<Router>
 					<Routes>
-						<Route path="/" element={<ProductCatalog />} />
+						<Route path="/" element={<Home />} />
 						<Route path="/products" element={<ProductCatalog />} />
 						<Route path="/product/:id" element={<ProductDetail />} />
 						<Route path="/cart" element={<ShoppingCart />} />
