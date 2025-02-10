@@ -71,7 +71,7 @@ class Order(models.Model):
     order_amount = models.DecimalField(max_digits=10, decimal_places=2)
     shipping_address = models.TextField()
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
-
+    email_id = models.CharField(max_length=50)
     def __str__(self):
         return f"Order {self.order_id}"
     

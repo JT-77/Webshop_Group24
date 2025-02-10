@@ -411,9 +411,10 @@ class OrderManagementView(View):
                     order_amount=data['amount'],
                     order_date=data.get('order_date', None),
                     payment=payment,
-                    shipping_address=shipping_address
+                    shipping_address=shipping_address,
+                    email_id=data['email_id']
                 )
-
+                
                
 
 
@@ -445,17 +446,26 @@ class OrderManagementView(View):
                             product=product,
                             product_quantity=item['quantity'],
                         )
+                        send_order_confirmation_email(
+                        customer_name=order.customer.name,
+                        customer_email=order.email_id,  # Fetching from order table
+                        order_amount=order.order_amount
+                    
+                )
 
                     except Product.DoesNotExist:
                         return JsonResponse({"error": f"Product with ID {item['product_id']} not found"}, status=404)
-
+                
+                
                 return JsonResponse({
                     "message": "Order created successfully",
                     "order_id": order.order_id,
                     "status": order.order_status,
                     "amount": order.order_amount,
-                    "transaction_id": payment.transaction_id
+                    "transaction_id": payment.transaction_id,
+                    "email_id": order.email_id
                 }, status=201)
+            
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON payload"}, status=400)
@@ -542,21 +552,32 @@ class InventoryManagementView(View):
 
 
 # Email Notifications
-class EmailNotificationView(View):
-    @method_decorator(csrf_exempt)
-    def post(self, request):
-        data = json.loads(request.body)
-        subject = data['subject']
-        message = data['message']
-        recipient_list = data['recipients']
-        send_mail(
-            subject,
-            message,
-            'no-reply@ecommerce.com',  # Replace with actual sender email
-            recipient_list
-        )
-        return JsonResponse({"message": "Emails sent successfully"})
-		
+
+
+def send_order_confirmation_email(customer_name, customer_email, order_amount):
+    """Sends an order confirmation email to the customer."""
+    
+    subject = "Order Confirmation - Your Order is Confirmed!"
+    
+    # Render HTML email template
+    html_content = render_to_string("emails/order_confirmed.html", {
+        "customer_name": customer_name,
+        "order_amount": order_amount,
+        "customer_email": customer_email
+    })
+    
+    # Create plain text version of the email
+    plain_message = strip_tags(html_content)
+    
+    sender_email = 'webshop.alerts3011@gmail.com'  # Change this to your sender email
+    recipient_list = [customer_email]
+    
+    # Create and send the email
+    email = EmailMessage(subject, plain_message, sender_email, recipient_list)
+    email.content_subtype = "html"  # Send as HTML
+    email.body = html_content
+    email.send()
+
 
 
 class UpdateOrderStatusView(View):
@@ -567,6 +588,7 @@ class UpdateOrderStatusView(View):
             data = json.loads(request.body)
             order_id = data.get('order_id')
             new_status = data.get('order_status')
+            email_id = data.get('email_id')
 
             if not order_id or not new_status:
                 return JsonResponse({"error": "Order ID and order_status are required"}, status=400)
@@ -582,7 +604,7 @@ class UpdateOrderStatusView(View):
             # Call the helper function to send an email
             send_status_update_email(
                 customer_name=order.customer.name,
-                customer_email=order.customer.email,
+                customer_email=order.email_id,
                 order_id=order_id,
                 previous_status=previous_status,
                 new_status=new_status
