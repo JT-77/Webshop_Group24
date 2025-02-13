@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
 	Elements,
 	useStripe,
@@ -24,6 +24,7 @@ import {
 } from "@heroicons/react/24/solid";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import CartContext from "../Context/CartContext";
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_KEY);
 
@@ -83,22 +84,24 @@ const CartItem = ({ item }) => (
 	<div className="flex items-center space-x-4 py-4 border-b last:border-b-0">
 		<div className="flex-shrink-0 h-16 w-16 md:h-20 md:w-20 rounded-lg overflow-hidden bg-gray-100">
 			<img
-				src={item.image}
+				src={item.image_path[0]}
 				alt={item.name}
 				className="h-full w-full object-cover"
 			/>
 		</div>
-		<div className="flex-1 min-w-0">
-			<h3 className="text-sm font-medium text-gray-900">{item.name}</h3>
-			<p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
-		</div>
-		<div className="flex-shrink-0 text-sm font-medium text-gray-900">
-			€{(item.quantity * item.price).toFixed(2)}
+		<div>
+			<div className="flex-1 min-w-0">
+				<h3 className="text-sm font-medium text-gray-900">{item.name}</h3>
+				<p className="mt-1 text-sm text-gray-500">Qty: {item.quantity}</p>
+			</div>
+			<div className="flex-shrink-0 text-sm font-medium text-gray-900">
+				€{(item.quantity * item.price).toFixed(2)}
+			</div>
 		</div>
 	</div>
 );
 
-const OrderSummary = ({ cartItems, calculateSubtotal }) => (
+const OrderSummary = ({ cartItems, calculateSubtotal, shippingCost, tax }) => (
 	<div className="bg-white p-6 rounded-lg shadow-sm border">
 		<h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
 			<ShoppingBagIcon className="mr-2 w-6 h-6" size={20} />
@@ -116,11 +119,15 @@ const OrderSummary = ({ cartItems, calculateSubtotal }) => (
 			</div>
 			<div className="flex justify-between text-sm text-gray-500">
 				<span>Shipping</span>
-				<span>Free</span>
+				<span>€{shippingCost}</span>
+			</div>
+			<div className="flex justify-between text-sm text-gray-500">
+				<span>Tax</span>
+				<span>€{tax.toFixed(2)}</span>
 			</div>
 			<div className="border-t border-gray-200 pt-4 flex justify-between text-base font-medium text-gray-900">
 				<span>Total</span>
-				<span>€{calculateSubtotal().toFixed(2)}</span>
+				<span>€{(calculateSubtotal() + shippingCost + tax).toFixed(2)}</span>
 			</div>
 		</div>
 	</div>
@@ -137,24 +144,7 @@ const CheckoutPage = () => {
 		postalCode: "",
 	});
 	const [cardType, setCardType] = useState("credit");
-	const [cartItems] = useState([
-		{
-			id: 1,
-			name: "Cool T-Shirt",
-			price: 25.99,
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
-			quantity: 2,
-		},
-		{
-			id: 2,
-			name: "Stylish Jacket",
-			price: 59.99,
-			image:
-				"https://fullyfilmy.in/cdn/shop/products/New-Mockups---no-hanger---TShirt-Written-and-Directed-by-chennai.jpg?v=1662807782",
-			quantity: 1,
-		},
-	]);
+	const { cartItems, createOrder } = useContext(CartContext);
 	const [paymentSuccess, setPaymentSuccess] = useState(false);
 	const navigate = useNavigate();
 
@@ -166,6 +156,9 @@ const CheckoutPage = () => {
 		setStep(2);
 	};
 
+	const shippingCost = calculateSubtotal() >= 50 ? 0.0 : 5.0;
+	const tax = 0.1 * calculateSubtotal(); // 10% tax
+
 	const handleBack = () => {
 		setStep((prevStep) => Math.max(1, prevStep - 1));
 	};
@@ -175,9 +168,33 @@ const CheckoutPage = () => {
 		setStep(3);
 	};
 
-	const handlePaymentSuccess = () => {
-		setPaymentSuccess(true);
-		setStep(4);
+	const handlePaymentSuccess = async () => {
+		const order_data = {
+			customer_id: 1,
+			customer_name: customerDetails.name,
+			email_id: customerDetails.email,
+			products: cartItems.map((item) => {
+				const res = { product_id: item.product_id, quantity: item.quantity };
+				return res;
+			}),
+			amount: (calculateSubtotal() + shippingCost + tax).toFixed(2),
+			payment_method: cardType + " card",
+			shipping_address:
+				customerDetails.street +
+				", " +
+				customerDetails.city +
+				", " +
+				customerDetails.postalCode +
+				", " +
+				customerDetails.state,
+		};
+
+		const order_status = await createOrder(order_data);
+
+		if (order_status === "success") {
+			setPaymentSuccess(true);
+			setStep(4);
+		} else alert("Something went wrong!");
 	};
 
 	const CheckoutForm = () => {
@@ -273,229 +290,177 @@ const CheckoutPage = () => {
 
 						<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 							<div className="lg:col-span-2">
-								<div className="bg-white shadow-sm rounded-lg p-6">
-									{step > 1 && step !== 4 && (
-										<button
-											onClick={handleBack}
-											className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-										>
-											<ArrowLeftIcon className="h-4 w-4 mr-1" />
-											Back
-										</button>
-									)}
+								<div className="bg-white shadow-sm rounded-lg">
+									<div className="p-6">
+										{step > 1 && step !== 4 && (
+											<button
+												onClick={handleBack}
+												className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+											>
+												<ArrowLeftIcon className="h-4 w-4 mr-1" />
+												Back
+											</button>
+										)}
 
-									{step === 1 && (
-										<form onSubmit={handleAddressSubmit} className="space-y-6">
-											<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
-												<TruckIcon className="w-6 h-6 mr-2" size={20} />
-												Shipping Details
-											</h2>
-											<div className="grid grid-cols-1 gap-6">
-												<InputField
-													label="Full Name"
-													value={customerDetails.name}
-													onChange={(e) =>
-														setCustomerDetails({
-															...customerDetails,
-															name: e.target.value,
-														})
-													}
-													placeholder="Your Name"
-												/>
-												<InputField
-													label="Email Address"
-													type="email"
-													value={customerDetails.email}
-													onChange={(e) =>
-														setCustomerDetails({
-															...customerDetails,
-															email: e.target.value,
-														})
-													}
-													placeholder="your-email@example.com"
-												/>
-												<InputField
-													label="Street Address"
-													value={customerDetails.street}
-													onChange={(e) =>
-														setCustomerDetails({
-															...customerDetails,
-															street: e.target.value,
-														})
-													}
-													placeholder="123 Main Street"
-												/>
-												<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										{step === 1 && (
+											<form
+												onSubmit={handleAddressSubmit}
+												className="space-y-6"
+											>
+												<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
+													<TruckIcon className="w-6 h-6 mr-2" size={20} />
+													Shipping Details
+												</h2>
+												<div className="grid grid-cols-1 gap-6">
 													<InputField
-														label="City"
-														value={customerDetails.city}
+														label="Full Name"
+														value={customerDetails.name}
 														onChange={(e) =>
 															setCustomerDetails({
 																...customerDetails,
-																city: e.target.value,
+																name: e.target.value,
 															})
 														}
-														placeholder="City"
+														placeholder="Your Name"
 													/>
 													<InputField
-														label="State"
-														value={customerDetails.state}
+														label="Email Address"
+														type="email"
+														value={customerDetails.email}
 														onChange={(e) =>
 															setCustomerDetails({
 																...customerDetails,
-																state: e.target.value,
+																email: e.target.value,
 															})
 														}
-														placeholder="State"
+														placeholder="your-email@example.com"
 													/>
-												</div>
-												<InputField
-													label="Postal Code"
-													value={customerDetails.postalCode}
-													onChange={(e) =>
-														setCustomerDetails({
-															...customerDetails,
-															postalCode: e.target.value,
-														})
-													}
-													placeholder="12345"
-												/>
-											</div>
-											<button
-												type="submit"
-												className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
-											>
-												Continue to Payment
-											</button>
-										</form>
-									)}
-
-									{step === 2 && (
-										<form
-											onSubmit={handlePaymentMethodSelect}
-											className="space-y-6"
-										>
-											<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
-												<CurrencyEuroIcon className="mr-2 h-6 w-6" />
-												Select Payment Method
-											</h2>
-											<div className="space-y-4">
-												<label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-													<input
-														type="radio"
-														name="cardType"
-														value="credit"
-														checked={cardType === "credit"}
-														onChange={(e) => setCardType(e.target.value)}
-														className="h-4 w-4 text-blue-500 focus:ring-blue-500"
+													<InputField
+														label="Street Address"
+														value={customerDetails.street}
+														onChange={(e) =>
+															setCustomerDetails({
+																...customerDetails,
+																street: e.target.value,
+															})
+														}
+														placeholder="123 Main Street"
 													/>
-													<span className="ml-3 font-medium">Credit Card</span>
-												</label>
-												<label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-													<input
-														type="radio"
-														name="cardType"
-														value="debit"
-														checked={cardType === "debit"}
-														onChange={(e) => setCardType(e.target.value)}
-														className="h-4 w-4 text-blue-500 focus:ring-blue-500"
-													/>
-													<span className="ml-3 font-medium">Debit Card</span>
-												</label>
-											</div>
-											<button
-												type="submit"
-												className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
-											>
-												Continue to Card Details
-											</button>
-										</form>
-									)}
-
-									{step === 3 && (
-										<div className="space-y-6">
-											<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
-												<CreditCardIcon className="mr-2 h-6 w-6" />
-												Enter Card Details
-											</h2>
-											<Elements stripe={stripePromise}>
-												<CheckoutForm />
-											</Elements>
-										</div>
-									)}
-
-									{paymentSuccess && (
-										<div className="space-y-6">
-											<div className="text-center mb-8">
-												<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-													<CheckBadgeIcon className="h-6 w-6 text-green-600" />
-												</div>
-												<h3 className="text-xl font-medium text-green-600">
-													Payment Successful!
-												</h3>
-												<p className="mt-2 text-sm text-gray-500">
-													Your order has been confirmed and will be shipped
-													soon.
-												</p>
-											</div>
-
-											{/* Order Details */}
-											<div className="space-y-6 border-t pt-6">
-												<div>
-													<h4 className="text-base font-medium text-gray-900 mb-4">
-														Payment Method
-													</h4>
-													<div className="bg-gray-50 rounded-lg p-4">
-														<div className="flex items-center">
-															<CreditCardIcon className="h-6 w-6 text-gray-400" />
-															<span className="ml-2 text-sm text-gray-600">
-																{cardType.charAt(0).toUpperCase() +
-																	cardType.slice(1)}{" "}
-																Card ending in ****4242
-															</span>
-														</div>
+													<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+														<InputField
+															label="City"
+															value={customerDetails.city}
+															onChange={(e) =>
+																setCustomerDetails({
+																	...customerDetails,
+																	city: e.target.value,
+																})
+															}
+															placeholder="City"
+														/>
+														<InputField
+															label="State"
+															value={customerDetails.state}
+															onChange={(e) =>
+																setCustomerDetails({
+																	...customerDetails,
+																	state: e.target.value,
+																})
+															}
+															placeholder="State"
+														/>
 													</div>
+													<InputField
+														label="Postal Code"
+														value={customerDetails.postalCode}
+														onChange={(e) =>
+															setCustomerDetails({
+																...customerDetails,
+																postalCode: e.target.value,
+															})
+														}
+														placeholder="12345"
+													/>
 												</div>
-
-												<div>
-													<h4 className="text-base font-medium text-gray-900 mb-4">
-														Shipping Address
-													</h4>
-													<div className="bg-gray-50 rounded-lg p-4">
-														<div className="text-sm text-gray-600 space-y-1">
-															<p>{customerDetails.name}</p>
-															<p>{customerDetails.street}</p>
-															<p>
-																{customerDetails.city}, {customerDetails.state}{" "}
-																{customerDetails.postalCode}
-															</p>
-															<p>{customerDetails.email}</p>
-														</div>
-													</div>
-												</div>
-											</div>
-
-											<div className="mt-8">
 												<button
-													onClick={() => navigate("/")}
+													type="submit"
 													className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
 												>
-													Continue Shopping
+													Continue to Payment
 												</button>
+											</form>
+										)}
+
+										{step === 2 && (
+											<form
+												onSubmit={handlePaymentMethodSelect}
+												className="space-y-6"
+											>
+												<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
+													<CurrencyEuroIcon className="mr-2 h-6 w-6" />
+													Select Payment Method
+												</h2>
+												<div className="space-y-4">
+													<label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+														<input
+															type="radio"
+															name="cardType"
+															value="credit"
+															checked={cardType === "credit"}
+															onChange={(e) => setCardType(e.target.value)}
+															className="h-4 w-4 text-blue-500 focus:ring-blue-500"
+														/>
+														<span className="ml-3 font-medium">
+															Credit Card
+														</span>
+													</label>
+													<label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+														<input
+															type="radio"
+															name="cardType"
+															value="debit"
+															checked={cardType === "debit"}
+															onChange={(e) => setCardType(e.target.value)}
+															className="h-4 w-4 text-blue-500 focus:ring-blue-500"
+														/>
+														<span className="ml-3 font-medium">Debit Card</span>
+													</label>
+												</div>
+												<button
+													type="submit"
+													className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+												>
+													Continue to Card Details
+												</button>
+											</form>
+										)}
+
+										{step === 3 && (
+											<div className="space-y-6">
+												<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
+													<CreditCardIcon className="mr-2 h-6 w-6" />
+													Enter Card Details
+												</h2>
+												<Elements stripe={stripePromise}>
+													<CheckoutForm />
+												</Elements>
 											</div>
-										</div>
-									)}
+										)}
+									</div>
 								</div>
 							</div>
 
 							{/* Order Summary */}
-							<div className="lg:col-span-1">
-								<div className="sticky top-6">
-									<OrderSummary
-										cartItems={cartItems}
-										calculateSubtotal={calculateSubtotal}
-									/>
-									{step < 4 && (
+							{step < 4 && (
+								<div className="lg:col-span-1">
+									<div className="sticky top-6">
+										<OrderSummary
+											cartItems={cartItems}
+											calculateSubtotal={calculateSubtotal}
+											shippingCost={shippingCost}
+											tax={tax}
+										/>
+
 										<div className="mt-6 bg-blue-50 rounded-lg p-4">
 											<div className="flex items-start">
 												<div className="flex-shrink-0">
@@ -512,9 +477,72 @@ const CheckoutPage = () => {
 												</div>
 											</div>
 										</div>
-									)}
+									</div>
 								</div>
-							</div>
+							)}
+						</div>
+
+						<div className="bg-white shadow-sm rounded-lg p-6">
+							{paymentSuccess && (
+								<div className="space-y-6">
+									<div className="text-center mb-8">
+										<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+											<CheckBadgeIcon className="h-6 w-6 text-green-600" />
+										</div>
+										<h3 className="text-xl font-medium text-green-600">
+											Payment Successful!
+										</h3>
+										<p className="mt-2 text-sm text-gray-500">
+											Your order has been confirmed and will be shipped soon.
+										</p>
+									</div>
+
+									{/* Order Details */}
+									<div className="space-y-6 border-t pt-6">
+										<div>
+											<h4 className="text-base font-medium text-gray-900 mb-4">
+												Payment Method
+											</h4>
+											<div className="bg-gray-50 rounded-lg p-4">
+												<div className="flex items-center">
+													<CreditCardIcon className="h-6 w-6 text-gray-400" />
+													<span className="ml-2 text-sm text-gray-600">
+														{cardType.charAt(0).toUpperCase() +
+															cardType.slice(1)}{" "}
+														Card ending in ****4242
+													</span>
+												</div>
+											</div>
+										</div>
+
+										<div>
+											<h4 className="text-base font-medium text-gray-900 mb-4">
+												Shipping Address
+											</h4>
+											<div className="bg-gray-50 rounded-lg p-4">
+												<div className="text-sm text-gray-600 space-y-1">
+													<p>{customerDetails.name}</p>
+													<p>{customerDetails.street}</p>
+													<p>
+														{customerDetails.city}, {customerDetails.state}{" "}
+														{customerDetails.postalCode}
+													</p>
+													<p>{customerDetails.email}</p>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div className="mt-8">
+										<button
+											onClick={() => navigate("/")}
+											className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+										>
+											Continue Shopping
+										</button>
+									</div>
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
