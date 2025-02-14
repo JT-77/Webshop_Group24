@@ -227,7 +227,8 @@ class FilteredProductListView(View):
                     products = products.order_by("-price")
                 elif selected_sort_by == "Newest First":
                     products = products.order_by("-id")  # Assuming newest products have higher IDs
-
+                elif selected_sort_by == "Rating: High to Low":
+                    products = products.order_by("-rating") 
             # Serialize Response
             product_list = [
                 {
