@@ -38,7 +38,7 @@ export const ProductProvider = ({ children }) => {
 		dispatch({ type: "FETCH_PRODUCTS_REQUEST" });
 		try {
 			const response = await axios.post(
-				process.env.REACT_APP_API_URL + "/products/filterProducts",
+				process.env.REACT_APP_API_URL + "/products/filterProducts/",
 				payload
 			);
 
