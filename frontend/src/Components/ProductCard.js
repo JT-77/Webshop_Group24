@@ -56,7 +56,7 @@ const ProductCard = ({ product }) => {
 			<div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-lg">
 				<Link to={`/product/${product.product_id}`}>
 					<img
-						src={product.image_path && product.image_path[0]}
+						src={product.image}
 						alt={product.name}
 						className="w-full h-full object-cover transition-transform transform hover:scale-110"
 					/>

@@ -4,7 +4,7 @@ import Header from "../Components/Header";
 import Footer from "../Components/Footer";
 import ImageSection from "../Components/ProductImages";
 import { ShoppingCartIcon, BoltIcon } from "@heroicons/react/24/solid";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import ProductContext from "../Context/ProductContext";
 import CartContext from "../Context/CartContext";
 
@@ -12,6 +12,7 @@ const ProductDetailPage = () => {
 	const { productDetails, fetchProductById } = useContext(ProductContext);
 	const { dispatch } = useContext(CartContext);
 	const { id } = useParams();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		fetchProductById(id);
@@ -76,7 +77,9 @@ const ProductDetailPage = () => {
 							<span className="text-yellow-400 text-lg">
 								{renderStars(productDetails.rating)}
 							</span>
-							<span className="text-gray-600 ml-2">{parseFloat(productDetails.rating).toFixed(1)} (320 reviews)</span>
+							<span className="text-gray-600 ml-2">
+								{parseFloat(productDetails.rating).toFixed(1)} (320 reviews)
+							</span>
 						</div>
 
 						<div className="mb-6">
@@ -92,9 +95,16 @@ const ProductDetailPage = () => {
 									€{productDetails.price}
 								</span>
 							</div>
-							{productDetails.inventory < 5 && <p className="text-red-600 text-lg font-medium mt-2">
-								Only {productDetails.inventory} left in stock!
-							</p>}
+							{productDetails.stock < 5 && productDetails.stock !== 0 && (
+								<p className="text-red-600 text-lg font-medium mt-2">
+									Only {productDetails.stock} left in stock!
+								</p>
+							)}
+							{productDetails.stock === 0 && (
+								<p className="text-red-600 text-lg font-medium mt-2">
+									Item out of stock!
+								</p>
+							)}
 						</div>
 
 						<div className="flex items-center space-x-4 mb-8">
@@ -106,11 +116,26 @@ const ProductDetailPage = () => {
 									})
 								}
 								className="flex items-center bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700"
+								disabled={productDetails.stock === 0}
 							>
 								<ShoppingCartIcon className="size-4 mr-1" />
 								Add to Cart
 							</button>
-							<button className="flex items-center bg-green-500 text-white px-6 py-2 rounded-lg shadow hover:bg-green-600">
+							<button
+								onClick={() => {
+									dispatch({
+										type: "CLEAR_CART",
+									});
+
+									dispatch({
+										type: "ADD_TO_CART",
+										payload: { ...productDetails, quantity: 1 },
+									});
+
+									navigate("/checkout");
+								}}
+								className="flex items-center bg-green-500 text-white px-6 py-2 rounded-lg shadow hover:bg-green-600"
+							>
 								<BoltIcon className="size-4 mr-1" />
 								Buy Now
 							</button>

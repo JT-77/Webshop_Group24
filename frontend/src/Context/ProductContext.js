@@ -34,13 +34,18 @@ const productReducer = (state, action) => {
 export const ProductProvider = ({ children }) => {
 	const [state, dispatch] = useReducer(productReducer, initialState);
 
-	const fetchProducts = async () => {
+	const fetchProducts = async (payload) => {
 		dispatch({ type: "FETCH_PRODUCTS_REQUEST" });
 		try {
-			const response = await axios.get(
-				process.env.REACT_APP_API_URL + "/products"
+			const response = await axios.post(
+				process.env.REACT_APP_API_URL + "/products/filterProducts",
+				payload
 			);
-			dispatch({ type: "FETCH_PRODUCTS_SUCCESS", payload: response.data });
+
+			dispatch({
+				type: "FETCH_PRODUCTS_SUCCESS",
+				payload: response.data.products,
+			});
 		} catch (error) {
 			dispatch({ type: "FETCH_PRODUCTS_ERROR", payload: error.message });
 		}
@@ -51,6 +56,7 @@ export const ProductProvider = ({ children }) => {
 			const response = await axios.get(
 				process.env.REACT_APP_API_URL + "/products/" + productId
 			);
+
 			dispatch({ type: "SET_PRODUCT_DETAILS", payload: response.data });
 		} catch (error) {
 			console.error("Error fetching product details:", error);
