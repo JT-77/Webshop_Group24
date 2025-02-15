@@ -6,7 +6,7 @@ const Sidebar = ({ filters, applyFilters }) => {
 	const [filterState, setFilterState] = useState({
 		selectedSortBy: "",
 		includeOutOfStock: false,
-		category: ["Accessories", "Electronics", "Clothing", "Perfume"],
+		category: [],
 		customerRatings: "",
 	});
 
@@ -57,7 +57,7 @@ const Sidebar = ({ filters, applyFilters }) => {
 			includeOutOfStock: false,
 			category: [],
 		});
-		setPriceRange([100, 900]);
+		setPriceRange([10, 900]);
 	};
 
 	return (
