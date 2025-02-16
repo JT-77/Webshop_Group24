@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import {
 	TruckIcon,
 	ShieldCheckIcon,
@@ -33,7 +31,7 @@ const Home = () => {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-200">
-			<Header />
+
 			<div
 				className="relative w-full h-[60vh] sm:h-[70vh] bg-right bg-cover lg:bg-center flex items-center justify-center"
 				style={{
@@ -170,7 +168,6 @@ const Home = () => {
 					</AnimatePresence>
 				</div>
 			</div>
-			<Footer />
 		</div>
 	);
 };

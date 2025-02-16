@@ -13,13 +13,19 @@ import AboutUs from "./Pages/AboutUs";
 import { ProductProvider } from "./Context/ProductContext";
 import { CartProvider } from "./Context/CartContext";
 import Home from "./Pages/Home";
+import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 
 const App = () => {
 	return (
 		<ProductProvider>
 			<CartProvider>
+				
 				<Router>
+				<Header />
+				<br /><br /><br />
 					<Routes>
+					
 						<Route path="/" element={<Home />} />
 						<Route path="/products" element={<ProductCatalog />} />
 						<Route path="/product/:id" element={<ProductDetail />} />
@@ -31,8 +37,11 @@ const App = () => {
 						<Route path="/checkout" element={<Checkout />} />
 						<Route path="/about" element={<AboutUs />} />
 						<Route path="*" element={<NotFoundPage />} />
+						
 					</Routes>
+					<Footer />
 				</Router>
+				
 			</CartProvider>
 		</ProductProvider>
 	);

@@ -4,8 +4,6 @@ import {
 	TrashIcon,
 	ShoppingCartIcon,
 } from "@heroicons/react/24/solid";
-import Footer from "../Components/Footer";
-import Header from "../Components/Header";
 import { Link, useNavigate } from "react-router-dom";
 import CartContext from "../Context/CartContext";
 
@@ -31,8 +29,6 @@ const ShoppingCart = () => {
 
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50">
-			<Header />
-
 			<div className="flex-1 flex flex-col lg:flex-row gap-8 p-4 lg:p-8">
 				{cartItems.length === 0 ? (
 					<div className="flex flex-col items-center justify-center flex-1 bg-white rounded-lg shadow p-8">
@@ -63,9 +59,9 @@ const ShoppingCart = () => {
 									<div className="flex flex-row w-full gap-4">
 										<div>
 											<img
-												src={item.image_path && item.image_path[0]}
+												src={item.image}
 												alt={item.name}
-												className="w-24 h-24 object-cover rounded"
+												className="w-24 h-24 object-contain rounded"
 											/>
 
 											<p className="md:hidden font-semibold text-gray-800 text-left mt-2">
@@ -191,8 +187,6 @@ const ShoppingCart = () => {
 					</>
 				)}
 			</div>
-
-			<Footer />
 		</div>
 	);
 };

@@ -1,11 +1,9 @@
 import React from "react";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+
       
 
       <div className="bg-white py-8 sm:py-12">
@@ -64,7 +62,7 @@ const PrivacyPolicy = () => {
         </div>
       </div>
 
-      <Footer />
+
     </div>
   );
 };
