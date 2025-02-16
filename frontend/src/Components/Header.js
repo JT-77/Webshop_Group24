@@ -4,49 +4,60 @@ import {
 	UserIcon,
 	MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
-import { Link } from "react-router-dom";
+import { a, useNavigate } from "react-router-dom";
 import CartContext from "../Context/CartContext";
 import ProductContext from "../Context/ProductContext";
 
 const Header = () => {
 	const { totalQuantity } = useContext(CartContext);
-	const { dispatch } = useContext(ProductContext);
-	const [showProfileMenu, setShowProfileMenu] = useState(false);
+	const { search, dispatch } = useContext(ProductContext);
 	const [showSearch, setShowSearch] = useState(false);
+	const navigate = useNavigate();
 
 	const handleSearch = (e) => {
 		dispatch({
 			type: "SEARCH_PRODUCTS",
 			payload: e.target.value,
 		});
+
+		console.log(e.target.value);
+	};
+
+	const handleKeyPress = (e) => {
+		if (e.key === "Enter") {
+			navigate("/products");
+			setShowSearch(false);
+		}
+	};
+
+	const handleBlur = () => {
+		navigate("/products");
+		setShowSearch(false);
 	};
 
 	return (
 		<header className="bg-white shadow-md top-0 left-0 w-full z-20">
 			<div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
 				<h1 className="text-2xl font-bold text-blue-600">
-					<Link to="/">Webshop24</Link>
+					<a href="/">Webshop24</a>
 				</h1>
 
 				<nav className="hidden md:flex space-x-6">
-					<Link
-						to="/"
-						className="text-gray-700 hover:text-blue-600 font-medium"
-					>
+					<a href="/" className="text-gray-700 hover:text-blue-600 font-medium">
 						Home
-					</Link>
-					<Link
-						to="/products"
+					</a>
+					<a
+						href="/products"
 						className="text-gray-700 hover:text-blue-600 font-medium"
 					>
 						Products
-					</Link>
-					<Link
-						to="/about"
+					</a>
+					<a
+						href="/about"
 						className="text-gray-700 hover:text-blue-600 font-medium"
 					>
 						About Us
-					</Link>
+					</a>
 				</nav>
 
 				<div className="relative hidden md:flex items-center w-1/3">
@@ -55,6 +66,9 @@ const Header = () => {
 						type="text"
 						placeholder="Search products..."
 						onChange={handleSearch}
+						onKeyDown={handleKeyPress}
+						onBlur={handleBlur}
+						value={search}
 						className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
 					/>
 				</div>
@@ -68,34 +82,19 @@ const Header = () => {
 					>
 						<MagnifyingGlassIcon className="h-6 w-6" />
 					</button>
-					<div
-						className="relative"
-						onMouseEnter={() => setShowProfileMenu(true)}
-						onMouseLeave={() => setShowProfileMenu(false)}
-					>
+					<div className="relative">
 						<button className="flex items-center text-gray-700 hover:text-blue-600">
 							<UserIcon className="h-6 w-6" />
 						</button>
-
-						{showProfileMenu && (
-							<div className="absolute right-0 mt-2 w-32 bg-white text-gray-800 rounded shadow-md">
-								<button
-									className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-									onClick={() => alert("Logged Out")}
-								>
-									Logout
-								</button>
-							</div>
-						)}
 					</div>
 
 					<div className="relative">
-						<Link
+						<a
 							to="/cart"
 							className="flex items-center text-gray-700 hover:text-blue-600"
 						>
 							<ShoppingCartIcon className="h-6 w-6" />
-						</Link>
+						</a>
 						{totalQuantity > 0 && (
 							<span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
 								{totalQuantity}
@@ -113,6 +112,9 @@ const Header = () => {
 							type="text"
 							placeholder="Search products..."
 							onChange={handleSearch}
+							onKeyDown={handleKeyPress}
+							onBlur={handleBlur}
+							value={search}
 							className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
