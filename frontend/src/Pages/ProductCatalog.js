@@ -1,8 +1,6 @@
 import React, { useEffect, useContext } from "react";
 import ProductCard from "../Components/ProductCard";
 import Sidebar from "../Components/Sidebar";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import ProductContext from "../Context/ProductContext";
 
 const ProductCatalog = () => {
@@ -29,8 +27,6 @@ const ProductCatalog = () => {
 
 	return (
 		<>
-			<Header />
-
 			<div className="max-w-screen-xl mx-auto p-4 grid grid-cols-1 md:grid-cols-4 gap-6">
 				<Sidebar applyFilters={handleApplyFilters} />
 
@@ -48,7 +44,6 @@ const ProductCatalog = () => {
 						))}
 				</section>
 			</div>
-			<Footer />
 		</>
 	);
 };

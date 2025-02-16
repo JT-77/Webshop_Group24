@@ -1,12 +1,10 @@
 import React from 'react';
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import { BuildingOffice2Icon, UsersIcon, PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-    <Header />
+  
       {/* Hero Section */}
       <div className="bg-white py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,7 +83,7 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
-    <Footer />
+
     </div>
   );
 };

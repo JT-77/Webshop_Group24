@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
 	ShoppingCartIcon,
 	UserIcon,
 	MagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
-import { a, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CartContext from "../Context/CartContext";
 import ProductContext from "../Context/ProductContext";
 
@@ -12,15 +12,36 @@ const Header = () => {
 	const { totalQuantity } = useContext(CartContext);
 	const { search, dispatch } = useContext(ProductContext);
 	const [showSearch, setShowSearch] = useState(false);
-	const navigate = useNavigate();
+	const [isVisible, setIsVisible] = useState(true);
+	const [lastScrollY, setLastScrollY] = useState(0);
+	const navigate = useNavigate()
+
+
+	const handleScroll = () => {
+		const currentScrollY = window.scrollY;
+
+		if (currentScrollY > lastScrollY && currentScrollY > 100) {
+			setIsVisible(false);
+		} else {
+			setIsVisible(true);
+		}
+
+		setLastScrollY(currentScrollY);
+	};
+
+	useEffect(() => {
+		window.addEventListener("scroll", handleScroll);
+
+		return () => {
+			window.removeEventListener("scroll", handleScroll);
+		};
+	}, [lastScrollY]);
 
 	const handleSearch = (e) => {
 		dispatch({
 			type: "SEARCH_PRODUCTS",
 			payload: e.target.value,
 		});
-
-		console.log(e.target.value);
 	};
 
 	const handleKeyPress = (e) => {
@@ -36,7 +57,11 @@ const Header = () => {
 	};
 
 	return (
-		<header className="bg-white shadow-md top-0 left-0 w-full z-20">
+		<header
+			className={`bg-white shadow-md top-0 left-0 w-full z-20 transition-transform duration-300 ${
+				isVisible ? "translate-y-0" : "-translate-y-full"
+			} fixed`}
+		>
 			<div className="max-w-screen-xl mx-auto flex items-center justify-between p-4">
 				<h1 className="text-2xl font-bold text-blue-600">
 					<a href="/">Webshop24</a>
@@ -82,15 +107,18 @@ const Header = () => {
 					>
 						<MagnifyingGlassIcon className="h-6 w-6" />
 					</button>
-					<div className="relative">
+					<div
+						className="relative"
+					>
 						<button className="flex items-center text-gray-700 hover:text-blue-600">
 							<UserIcon className="h-6 w-6" />
 						</button>
+
 					</div>
 
 					<div className="relative">
 						<a
-							to="/cart"
+							href="/cart"
 							className="flex items-center text-gray-700 hover:text-blue-600"
 						>
 							<ShoppingCartIcon className="h-6 w-6" />

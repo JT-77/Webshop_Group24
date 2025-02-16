@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import {
 	MapPinIcon,
 	PhoneIcon,
@@ -36,7 +34,7 @@ const ContactUs = () => {
 
 	return (
 		<div className="min-h-screen bg-gray-50">
-			<Header />
+
 
 			<div className="bg-white py-8 sm:py-12">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -165,7 +163,7 @@ const ContactUs = () => {
 					)}
 				</AnimatePresence>
 			</div>
-			<Footer />
+
 		</div>
 	);
 };

@@ -1,7 +1,5 @@
 import React, { useEffect, useContext } from "react";
 import { FaShippingFast, FaUndoAlt } from "react-icons/fa";
-import Header from "../Components/Header";
-import Footer from "../Components/Footer";
 import ImageSection from "../Components/ProductImages";
 import { ShoppingCartIcon, BoltIcon } from "@heroicons/react/24/solid";
 import { useParams, useNavigate } from "react-router-dom";
@@ -61,7 +59,6 @@ const ProductDetailPage = () => {
 
 	return (
 		<>
-			<Header />
 			<div className="container bg-gray-50 mt-2 mx-0 lg:mx-auto px-4 py-6">
 				<div className="grid md:grid-cols-2 gap-8">
 					<ImageSection images={productDetails.image_path} />
@@ -229,8 +226,6 @@ const ProductDetailPage = () => {
 					</div>
 				</div>
 			</div>
-
-			<Footer />
 		</>
 	);
 };
