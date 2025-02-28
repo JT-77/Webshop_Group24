@@ -2,9 +2,11 @@ import React, { useEffect, useContext, useState } from "react";
 import ProductCard from "../Components/ProductCard";
 import Sidebar from "../Components/Sidebar";
 import ProductContext from "../Context/ProductContext";
+import Loader from "../Components/Loader";
 
 const ProductCatalog = () => {
-	const { products, search, fetchProducts } = useContext(ProductContext);
+	const { products, search, fetchProducts, loading } =
+		useContext(ProductContext);
 
 	useEffect(() => {
 		if (products.length === 0) {
@@ -22,6 +24,10 @@ const ProductCatalog = () => {
 			fetchProducts(filterBody);
 		}
 	};
+
+	if (loading && products.length === 0) {
+		return <Loader />;
+	}
 
 	return (
 		<>

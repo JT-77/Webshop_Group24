@@ -9,7 +9,7 @@ const ProductCard = ({ product }) => {
 	const cartItem = cartItems.find(
 		(item) => item.product_id === product.product_id
 	);
-	const quantityInCart = cartItem ? cartItem.quantity : 0;
+	const quantityInCart = cartItem ? cartItem.quantity : -1;
 
 	const isStockLimitReached = quantityInCart === product.stock;
 
@@ -95,12 +95,22 @@ const ProductCard = ({ product }) => {
 					</div>
 				</div>
 
-				{product.stock == 0 ? (
+				{product.stock === 0 ? (
 					<p className="text-sm text-red-600 text-lg font-medium mt-2">
 						Item out of stock!
 					</p>
 				) : (
 					<p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-2 text-left">
+						{product.description}
+					</p>
+				)}
+
+				{isStockLimitReached ? (
+					<p className="text-sm text-red-600 text-lg font-medium mt-2">
+						No more quantities available!
+					</p>
+				) : (
+					<p className="text-sm text-gray-600 line-clamp-2 text-left">
 						{product.description}
 					</p>
 				)}
@@ -132,7 +142,7 @@ const ProductCard = ({ product }) => {
 					</h3>
 				</Link>
 
-				{product.stock == 0 ? (
+				{product.stock === 0 ? (
 					<p className="text-sm text-red-600 text-lg font-medium mt-2">
 						Item out of stock!
 					</p>
@@ -165,14 +175,14 @@ const ProductCard = ({ product }) => {
 
 				<div className="flex justify-between items-center py-2 px-1 border-t border-gray-200">
 					<div className="flex items-center space-x-2">
-						<p className="text-xl font-bold text-gray-800">
+						<p className="text-lg font-bold text-gray-800">
 							€
 							{(
 								parseFloat(product.price) -
 								0.1 * parseFloat(product.price)
 							).toFixed(2)}
 						</p>
-						<p className="text-sm text-gray-500 line-through">
+						<p className="text-xs text-gray-500 line-through">
 							€{product.price}
 						</p>
 					</div>
