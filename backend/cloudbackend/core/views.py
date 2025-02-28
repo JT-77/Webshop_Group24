@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.mail import send_mail
 from django.utils.decorators import method_decorator
 from django.db.models import Q, F
+from decimal import Decimal,ROUND_HALF_UP
 
   # Import the Response class
 
@@ -571,6 +572,14 @@ def send_order_confirmation_email(customer_name, customer_email, order_amount,pr
     
     subject = "Order Confirmation - Your Order is Confirmed!"
     
+    # Apply 10% tax on product price
+    for product in products:
+        product_price = product["price"]  # Assuming price is stored as Decimal
+        tax = (product_price * Decimal('0.10')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)  # Round to two decimal places
+        product["price_with_tax"] = (product_price + tax).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+
     # Render HTML email template
     html_content = render_to_string("emails/order_confirmed.html", {
         "customer_name": customer_name,
@@ -582,7 +591,7 @@ def send_order_confirmation_email(customer_name, customer_email, order_amount,pr
     # Create plain text version of the email
     plain_message = strip_tags(html_content)
     
-    sender_email = 'webshop.alerts3011@gmail.com'  # Change this to your sender email
+    sender_email = 'webshop.alerts3011@gmail.com'
     recipient_list = [customer_email]
     
     # Create and send the email
@@ -664,7 +673,7 @@ def send_status_update_email(customer_name, customer_email, order_id, previous_s
 
     # Create plain text version by stripping HTML tags
     plain_message = strip_tags(html_content)
-    sender_email = 'webshop.alerts3011@gmail.com'  # Replace with your actual sender email
+    sender_email = 'webshop.alerts3011@gmail.com'  
     recipient_list = [customer_email]
 
     # Send email with both plain text and HTML versions
@@ -721,7 +730,7 @@ class LowStockCheckView(View):
                 send_mail(
                     subject,
                     message,
-                    'webshop.alerts3011@gmail.com',  # Replace with your sender email
+                    'webshop.alerts3011@gmail.com',  
                     [supplier.email]
                 )
 
