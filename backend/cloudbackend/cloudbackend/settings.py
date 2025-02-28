@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-
+import os
 
 AWS_ACCESS_KEY_ID = 'AKIATJHQDY2ZSLX7DLEQ'
 AWS_SECRET_ACCESS_KEY = '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'
@@ -139,10 +139,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# For development:
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+
 
 # For production (static files collected via collectstatic):
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
