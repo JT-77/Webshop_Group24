@@ -252,26 +252,49 @@ const ProductDetailPage = () => {
 							Customer Reviews
 						</h2>
 						<div className="space-y-6">
-							{[1, 2, 3].map((review, index) => (
-								<div
-									key={index}
-									className="p-4 border border-gray-200 rounded-md"
-								>
-									<div className="flex items-center justify-between mb-2">
-										<div className="flex items-center space-x-2">
-											<span className="text-yellow-400">★★★★★</span>
-											<span className="text-gray-800 font-medium">
-												John Doe
-											</span>
-										</div>
-										<span className="text-gray-500 text-sm">2 days ago</span>
+							<div className="p-4 border border-gray-200 rounded-md">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center space-x-2">
+										<span className="text-yellow-400">★★★★★</span>
+										<span className="text-gray-800 font-medium">
+											James Anderson
+										</span>
 									</div>
-									<p className="text-gray-600">
-										Great product! Exactly what I needed. The quality is
-										top-notch and delivery was fast.
-									</p>
+									<span className="text-gray-500 text-sm">1 day ago</span>
 								</div>
-							))}
+								<p className="text-gray-600">
+									Great product! Exactly what I needed. The quality is top-notch
+									and delivery was fast.
+								</p>
+							</div>
+
+							<div className="p-4 border border-gray-200 rounded-md">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center space-x-2">
+										<span className="text-yellow-400">★★★★</span>
+										<span className="text-gray-800 font-medium">
+											Felix Koob
+										</span>
+									</div>
+									<span className="text-gray-500 text-sm">1 week ago</span>
+								</div>
+								<p className="text-gray-600">
+									Loved this product! It's exactly what I was looking for.
+								</p>
+							</div>
+
+							<div className="p-4 border border-gray-200 rounded-md">
+								<div className="flex items-center justify-between mb-2">
+									<div className="flex items-center space-x-2">
+										<span className="text-yellow-400">★★★★</span>
+										<span className="text-gray-800 font-medium">Anonymous</span>
+									</div>
+									<span className="text-gray-500 text-sm">1 week ago</span>
+								</div>
+								<p className="text-gray-600">
+									Good product indeed. I would recommend it to others.
+								</p>
+							</div>
 						</div>
 					</div>
 				</div>

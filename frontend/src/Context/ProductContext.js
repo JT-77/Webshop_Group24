@@ -20,11 +20,12 @@ const productReducer = (state, action) => {
 		case "FETCH_PRODUCTS_ERROR":
 			return { ...state, error: action.payload, loading: false };
 		case "SET_PRODUCT_DETAILS":
-			return { ...state, productDetails: action.payload };
+			return { ...state, productDetails: action.payload, loading: false };
 		case "SEARCH_PRODUCTS":
 			return {
 				...state,
 				search: action.payload,
+				loading: false,
 			};
 		default:
 			return state;

@@ -131,6 +131,29 @@ const OrderSummary = ({ cartItems, calculateSubtotal, shippingCost, tax }) => (
 	</div>
 );
 
+const LoadingSpinner = () => (
+	<svg
+		className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+	>
+		<circle
+			className="opacity-25"
+			cx="12"
+			cy="12"
+			r="10"
+			stroke="currentColor"
+			strokeWidth="4"
+		></circle>
+		<path
+			className="opacity-75"
+			fill="currentColor"
+			d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+		></path>
+	</svg>
+);
+
 const CheckoutPage = () => {
 	const [step, setStep] = useState(1);
 	const [customerDetails, setCustomerDetails] = useState({
@@ -196,6 +219,7 @@ const CheckoutPage = () => {
 	};
 
 	const CheckoutForm = () => {
+		const [isProcessing, setIsProcessing] = useState(false);
 		const stripe = useStripe();
 		const elements = useElements();
 
@@ -203,20 +227,29 @@ const CheckoutPage = () => {
 			e.preventDefault();
 			if (!stripe || !elements) return;
 
-			const cardElement = elements.getElement(CardNumberElement);
-			const { error } = await stripe.createPaymentMethod({
-				type: "card",
-				card: cardElement,
-				billing_details: {
-					name: customerDetails.name,
-					email: customerDetails.email,
-				},
-			});
+			setIsProcessing(true);
 
-			if (error) {
-				alert(error.message);
-			} else {
-				handlePaymentSuccess();
+			try {
+				const cardElement = elements.getElement(CardNumberElement);
+				const { error } = await stripe.createPaymentMethod({
+					type: "card",
+					card: cardElement,
+					billing_details: {
+						name: customerDetails.name,
+						email: customerDetails.email,
+					},
+				});
+
+				if (error) {
+					alert(error.message);
+					setIsProcessing(false);
+				} else {
+					await handlePaymentSuccess();
+				}
+			} catch (error) {
+				console.error("Payment error:", error);
+				alert("An error occurred while processing your payment.");
+				setIsProcessing(false);
 			}
 		};
 
@@ -251,9 +284,22 @@ const CheckoutPage = () => {
 
 				<button
 					type="submit"
-					className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+					disabled={isProcessing}
+					className={`w-full bg-blue-500 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center
+            ${
+							isProcessing
+								? "bg-blue-400 cursor-not-allowed"
+								: "hover:bg-blue-600"
+						}`}
 				>
-					Pay €{calculateSubtotal().toFixed(2)}
+					{isProcessing ? (
+						<>
+							<LoadingSpinner />
+							Processing Payment...
+						</>
+					) : (
+						`Pay €${(calculateSubtotal() + shippingCost + tax).toFixed(2)}`
+					)}
 				</button>
 			</form>
 		);
@@ -288,8 +334,8 @@ const CheckoutPage = () => {
 						<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 							<div className="lg:col-span-2">
 								<div className="bg-white shadow-sm rounded-lg">
-									<div className="p-6">
-										{step > 1 && step !== 4 && (
+									{step > 1 && step !== 4 && (
+										<div className="p-6">
 											<button
 												onClick={handleBack}
 												className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
@@ -297,9 +343,11 @@ const CheckoutPage = () => {
 												<ArrowLeftIcon className="h-4 w-4 mr-1" />
 												Back
 											</button>
-										)}
+										</div>
+									)}
 
-										{step === 1 && (
+									{step === 1 && (
+										<div className="p-6">
 											<form
 												onSubmit={handleAddressSubmit}
 												className="space-y-6"
@@ -386,9 +434,11 @@ const CheckoutPage = () => {
 													Continue to Payment
 												</button>
 											</form>
-										)}
+										</div>
+									)}
 
-										{step === 2 && (
+									{step === 2 && (
+										<div className="p-6">
 											<form
 												onSubmit={handlePaymentMethodSelect}
 												className="space-y-6"
@@ -430,9 +480,11 @@ const CheckoutPage = () => {
 													Continue to Card Details
 												</button>
 											</form>
-										)}
+										</div>
+									)}
 
-										{step === 3 && (
+									{step === 3 && (
+										<div className="p-6">
 											<div className="space-y-6">
 												<h2 className="text-xl font-semibold text-gray-900 flex items-center mb-6">
 													<CreditCardIcon className="mr-2 h-6 w-6" />
@@ -442,8 +494,8 @@ const CheckoutPage = () => {
 													<CheckoutForm />
 												</Elements>
 											</div>
-										)}
-									</div>
+										</div>
+									)}
 								</div>
 							</div>
 
@@ -479,8 +531,8 @@ const CheckoutPage = () => {
 							)}
 						</div>
 
-						<div className="bg-white shadow-sm rounded-lg p-6">
-							{paymentSuccess && (
+						{paymentSuccess && (
+							<div className="bg-white shadow-sm rounded-lg p-6">
 								<div className="space-y-6">
 									<div className="text-center mb-8">
 										<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -539,8 +591,8 @@ const CheckoutPage = () => {
 										</button>
 									</div>
 								</div>
-							)}
-						</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
