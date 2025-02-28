@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import {
 	QuestionMarkCircleIcon,
 	TrashIcon,
@@ -26,6 +26,8 @@ const ShoppingCart = () => {
 	const shippingCost = calculateSubtotal() >= 50 ? 0.0 : 5.0;
 	const tax = 0.1 * calculateSubtotal(); // 10% tax
 	const total = calculateSubtotal() + shippingCost + tax;
+
+	useEffect(() => {}, [cartItems]);
 
 	return (
 		<div className="min-h-screen flex flex-col bg-gray-50">
@@ -59,7 +61,7 @@ const ShoppingCart = () => {
 									<div className="flex flex-row w-full gap-4">
 										<div>
 											<img
-												src={item.image}
+												src={item.image || item.image_path[0]}
 												alt={item.name}
 												className="w-24 h-24 object-contain rounded"
 											/>
@@ -88,7 +90,14 @@ const ShoppingCart = () => {
 													onClick={() =>
 														handleQuantityChange(item.product_id, 1)
 													}
-													className="px-3 py-1 bg-gray-200 rounded"
+													className={`px-3 py-1 rounded ${
+														item.stock === 0 || item.quantity === item.stock
+															? "bg-gray-400 cursor-not-allowed"
+															: "bg-gray-200"
+													}`}
+													disabled={
+														item.stock === 0 || item.quantity === item.stock
+													}
 												>
 													+
 												</button>
@@ -121,7 +130,14 @@ const ShoppingCart = () => {
 													onClick={() =>
 														handleQuantityChange(item.product_id, 1)
 													}
-													className="px-3 py-1 bg-gray-200 rounded"
+													className={`px-3 py-1 rounded ${
+														item.stock === 0 || item.quantity === item.stock
+															? "bg-gray-400 cursor-not-allowed"
+															: "bg-gray-200"
+													}`}
+													disabled={
+														item.stock === 0 || item.quantity === item.stock
+													}
 												>
 													+
 												</button>

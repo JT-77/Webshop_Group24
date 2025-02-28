@@ -1,18 +1,18 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import ProductCard from "../Components/ProductCard";
 import Sidebar from "../Components/Sidebar";
 import ProductContext from "../Context/ProductContext";
+import Loader from "../Components/Loader";
 
 const ProductCatalog = () => {
 	const { products, search, fetchProducts } = useContext(ProductContext);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		if (products.length === 0) {
 			handleApplyFilters();
-		}
-
-		console.log(products);
-	}, []);
+		} else setLoading(false);
+	}, [products]);
 
 	const handleApplyFilters = (appliedFilters, priceRange) => {
 		if (appliedFilters && appliedFilters.selectedSortBy !== "open") {
@@ -24,6 +24,10 @@ const ProductCatalog = () => {
 			fetchProducts(filterBody);
 		}
 	};
+
+	if (loading) {
+		return <Loader />;
+	}
 
 	return (
 		<>

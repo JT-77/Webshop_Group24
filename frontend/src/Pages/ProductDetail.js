@@ -1,20 +1,36 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { FaShippingFast, FaUndoAlt } from "react-icons/fa";
 import ImageSection from "../Components/ProductImages";
 import { ShoppingCartIcon, BoltIcon } from "@heroicons/react/24/solid";
 import { useParams, useNavigate } from "react-router-dom";
 import ProductContext from "../Context/ProductContext";
 import CartContext from "../Context/CartContext";
+import Loader from "../Components/Loader";
 
 const ProductDetailPage = () => {
 	const { productDetails, fetchProductById } = useContext(ProductContext);
-	const { dispatch } = useContext(CartContext);
+	const { dispatch, cartItems } = useContext(CartContext);
+	const [loading, setLoading] = useState(true);
 	const { id } = useParams();
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		fetchProductById(id);
+		const fetchData = async () => {
+			await fetchProductById(id);
+			setLoading(false);
+		};
+
+		fetchData();
 	}, [id]);
+
+	const cartItem = cartItems.find(
+		(item) => item.product_id === (productDetails?.product_id || id)
+	);
+	const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+	const isStockLimitReached = productDetails
+		? quantityInCart >= productDetails.stock
+		: true;
 
 	const renderStars = (rating) => {
 		const totalStars = 5;
@@ -55,7 +71,33 @@ const ProductDetailPage = () => {
 		);
 	};
 
-	if (!productDetails) return <p>Loading product...</p>;
+	const handleAddToCart = () => {
+		if (productDetails && !isStockLimitReached) {
+			dispatch({
+				type: "ADD_TO_CART",
+				payload: { ...productDetails, quantity: 1 },
+			});
+		}
+	};
+
+	const handleBuyNow = () => {
+		if (productDetails && !isStockLimitReached) {
+			dispatch({
+				type: "CLEAR_CART",
+			});
+
+			dispatch({
+				type: "ADD_TO_CART",
+				payload: { ...productDetails, quantity: 1 },
+			});
+
+			navigate("/checkout");
+		}
+	};
+
+	if (loading) {
+		return <Loader />;
+	}
 
 	return (
 		<>
@@ -92,46 +134,54 @@ const ProductDetailPage = () => {
 									€{productDetails.price}
 								</span>
 							</div>
-							{productDetails.stock < 5 && productDetails.stock !== 0 && (
-								<p className="text-red-600 text-lg font-medium mt-2">
-									Only {productDetails.stock} left in stock!
-								</p>
-							)}
+							{productDetails.stock > 0 &&
+								productDetails.stock < 5 &&
+								!isStockLimitReached && (
+									<p className="text-red-600 text-lg font-medium mt-2">
+										Only {productDetails.stock} left in stock!
+									</p>
+								)}
+
 							{productDetails.stock === 0 && (
 								<p className="text-red-600 text-lg font-medium mt-2">
 									Item out of stock!
+								</p>
+							)}
+
+							{isStockLimitReached && productDetails.stock > 0 && (
+								<p className="text-red-600 text-lg font-medium mt-2">
+									No more quantities available!
+								</p>
+							)}
+
+							{quantityInCart > 0 && !isStockLimitReached && (
+								<p className="text-blue-600 text-lg font-medium mt-2">
+									You already have {quantityInCart} in your cart
 								</p>
 							)}
 						</div>
 
 						<div className="flex items-center space-x-4 mb-8">
 							<button
-								onClick={() =>
-									dispatch({
-										type: "ADD_TO_CART",
-										payload: { ...productDetails, quantity: 1 },
-									})
-								}
-								className="flex items-center bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700"
-								disabled={productDetails.stock === 0}
+								onClick={handleAddToCart}
+								className={`flex items-center px-6 py-2 rounded-lg shadow ${
+									productDetails.stock === 0 || isStockLimitReached
+										? "bg-gray-400 cursor-not-allowed"
+										: "bg-blue-600 text-white hover:bg-blue-700"
+								}`}
+								disabled={productDetails.stock === 0 || isStockLimitReached}
 							>
 								<ShoppingCartIcon className="size-4 mr-1" />
 								Add to Cart
 							</button>
 							<button
-								onClick={() => {
-									dispatch({
-										type: "CLEAR_CART",
-									});
-
-									dispatch({
-										type: "ADD_TO_CART",
-										payload: { ...productDetails, quantity: 1 },
-									});
-
-									navigate("/checkout");
-								}}
-								className="flex items-center bg-green-500 text-white px-6 py-2 rounded-lg shadow hover:bg-green-600"
+								onClick={handleBuyNow}
+								className={`flex items-center px-6 py-2 rounded-lg shadow ${
+									productDetails.stock === 0 || isStockLimitReached
+										? "bg-gray-400 cursor-not-allowed"
+										: "bg-green-500 text-white hover:bg-green-600"
+								}`}
+								disabled={productDetails.stock === 0 || isStockLimitReached}
 							>
 								<BoltIcon className="size-4 mr-1" />
 								Buy Now

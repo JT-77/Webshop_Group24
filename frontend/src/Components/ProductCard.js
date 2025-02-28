@@ -1,10 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import CartContext from "../Context/CartContext";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
-	const { dispatch } = useContext(CartContext);
+	const { dispatch, cartItems } = useContext(CartContext);
+
+	const cartItem = cartItems.find(
+		(item) => item.product_id === product.product_id
+	);
+	const quantityInCart = cartItem ? cartItem.quantity : 0;
+
+	const isStockLimitReached = quantityInCart === product.stock;
 
 	const renderStars = () => {
 		const totalStars = 5;
@@ -47,8 +54,10 @@ const ProductCard = ({ product }) => {
 	};
 
 	const handleAddToCart = (prod) => {
-		const data = { ...prod, quantity: 1 };
-		dispatch({ type: "ADD_TO_CART", payload: data });
+		if (!isStockLimitReached) {
+			const data = { ...prod, quantity: 1 };
+			dispatch({ type: "ADD_TO_CART", payload: data });
+		}
 	};
 
 	return (
@@ -86,9 +95,15 @@ const ProductCard = ({ product }) => {
 					</div>
 				</div>
 
-				<p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-2 text-left">
-					{product.description}
-				</p>
+				{product.stock == 0 ? (
+					<p className="text-sm text-red-600 text-lg font-medium mt-2">
+						Item out of stock!
+					</p>
+				) : (
+					<p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-2 text-left">
+						{product.description}
+					</p>
+				)}
 
 				<div className="flex items-center space-x-1 text-xs text-gray-500">
 					{renderStars()}
@@ -97,10 +112,15 @@ const ProductCard = ({ product }) => {
 
 				<button
 					onClick={() => handleAddToCart(product)}
-					className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-1"
+					className={`w-full py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-1 ${
+						product.stock === 0 || isStockLimitReached
+							? "bg-gray-400 cursor-not-allowed"
+							: "bg-blue-600 text-white hover:bg-blue-700"
+					}`}
+					disabled={product.stock === 0 || isStockLimitReached}
 				>
 					<ShoppingCartIcon className="h-4 w-4" />
-					<span>Add to Cart</span>
+					Add to Cart
 				</button>
 			</div>
 
@@ -112,9 +132,25 @@ const ProductCard = ({ product }) => {
 					</h3>
 				</Link>
 
-				<p className="text-sm text-gray-600 line-clamp-2 text-left">
-					{product.description}
-				</p>
+				{product.stock == 0 ? (
+					<p className="text-sm text-red-600 text-lg font-medium mt-2">
+						Item out of stock!
+					</p>
+				) : (
+					<p className="text-sm text-gray-600 line-clamp-2 text-left">
+						{product.description}
+					</p>
+				)}
+
+				{isStockLimitReached ? (
+					<p className="text-sm text-red-600 text-lg font-medium mt-2">
+						No more quantities available!
+					</p>
+				) : (
+					<p className="text-sm text-gray-600 line-clamp-2 text-left">
+						{product.description}
+					</p>
+				)}
 
 				<div className="flex items-center space-x-1">
 					{renderStars()}
@@ -140,9 +176,15 @@ const ProductCard = ({ product }) => {
 							€{product.price}
 						</p>
 					</div>
+
 					<button
 						onClick={() => handleAddToCart(product)}
-						className="w-24 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+						className={`w-32 py-2 rounded-lg font-semibold transition-colors ${
+							product.stock === 0 || isStockLimitReached
+								? "bg-gray-400 cursor-not-allowed"
+								: "bg-blue-600 text-white hover:bg-blue-700"
+						}`}
+						disabled={product.stock === 0 || isStockLimitReached}
 					>
 						Add to Cart
 					</button>
