@@ -11,8 +11,8 @@ const ProductCatalog = () => {
 	useEffect(() => {
 		if (products.length === 0) {
 			handleApplyFilters();
-		} else setLoading(false);
-	}, [products]);
+		}
+	}, []);
 
 	const handleApplyFilters = (appliedFilters, priceRange) => {
 		if (appliedFilters && appliedFilters.selectedSortBy !== "open") {
@@ -22,6 +22,7 @@ const ProductCatalog = () => {
 			};
 
 			fetchProducts(filterBody);
+			setLoading(false);
 		}
 	};
 
