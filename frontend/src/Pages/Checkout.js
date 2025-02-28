@@ -479,8 +479,8 @@ const CheckoutPage = () => {
 							)}
 						</div>
 
-						<div className="bg-white shadow-sm rounded-lg p-6">
-							{paymentSuccess && (
+						{paymentSuccess && (
+							<div className="bg-white shadow-sm rounded-lg p-6">
 								<div className="space-y-6">
 									<div className="text-center mb-8">
 										<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -539,8 +539,8 @@ const CheckoutPage = () => {
 										</button>
 									</div>
 								</div>
-							)}
-						</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
