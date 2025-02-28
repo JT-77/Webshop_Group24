@@ -10,7 +10,7 @@
     <h3>Purchased Products:</h3>
     <ul>
         {% for product in products %}
-            <li><strong>{{ product.name }}</strong> - Quantity: {{ product.quantity }} - Price: ${{ product.price_with_tax }}</li>
+            <li><strong>{{ product.name }}</strong> - Quantity: {{ product.quantity }} - Price: €{{ product.price_with_tax }}</li>
         {% endfor %}
     </ul>
 
