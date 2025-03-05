@@ -82,15 +82,13 @@ const ProductCard = ({ product }) => {
 						</h3>
 					</Link>
 					<div className="flex items-center space-x-2">
-						<p className="text-sm font-bold text-gray-800">
+						<p className="text-sm font-bold text-gray-800">€{product.price}</p>
+						<p className="text-xs text-gray-500 line-through">
 							€
 							{(
-								parseFloat(product.price) -
+								parseFloat(product.price) +
 								0.1 * parseFloat(product.price)
 							).toFixed(2)}
-						</p>
-						<p className="text-xs text-gray-500 line-through">
-							€{product.price}
 						</p>
 					</div>
 				</div>
@@ -175,15 +173,13 @@ const ProductCard = ({ product }) => {
 
 				<div className="flex justify-between items-center py-2 px-1 border-t border-gray-200">
 					<div className="flex items-center space-x-2">
-						<p className="text-lg font-bold text-gray-800">
+						<p className="text-lg font-bold text-gray-800">€{product.price}</p>
+						<p className="text-xs text-gray-500 line-through">
 							€
 							{(
-								parseFloat(product.price) -
+								parseFloat(product.price) +
 								0.1 * parseFloat(product.price)
 							).toFixed(2)}
-						</p>
-						<p className="text-xs text-gray-500 line-through">
-							€{product.price}
 						</p>
 					</div>
 

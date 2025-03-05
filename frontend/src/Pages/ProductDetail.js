@@ -124,14 +124,14 @@ const ProductDetailPage = () => {
 						<div className="mb-6">
 							<div className="flex items-center space-x-4">
 								<span className="text-2xl font-bold text-gray-800">
-									€
-									{(
-										parseFloat(productDetails.price) -
-										0.1 * parseFloat(productDetails.price)
-									).toFixed(2)}
+									€{productDetails.price}
 								</span>
 								<span className="text-gray-500 line-through">
-									€{productDetails.price}
+									€
+									{(
+										parseFloat(productDetails.price) +
+										0.1 * parseFloat(productDetails.price)
+									).toFixed(2)}
 								</span>
 							</div>
 							{productDetails.stock > 0 &&
